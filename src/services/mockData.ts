@@ -1,4 +1,3 @@
-
 import { faker } from '@faker-js/faker';
 import { 
   Documento, 
@@ -40,7 +39,7 @@ export const gerarCaixasMock = (quantidade: number = 50): Caixa[] => {
       setor: faker.helpers.enumValue(Setor),
       localizacao: gerarLocalizacao(),
       dataAbertura,
-      responsavel: faker.name.fullName(),
+      responsavel: faker.person.fullName(),
       capacidade: 100,
       documentosCount,
       status: documentosCount >= 100 ? StatusCaixa.CHEIA : 
@@ -67,14 +66,14 @@ export const gerarDocumentosMock = (caixas: Caixa[], quantidade: number = 200): 
       numero: `DOC-${(i + 1).toString().padStart(6, '0')}`,
       tipo: faker.helpers.enumValue(TipoDocumento),
       setor: caixaAleatoria.setor,
-      responsavel: faker.name.fullName(),
+      responsavel: faker.person.fullName(),
       dataArquivamento,
       dataDescarte,
       descricao: faker.lorem.sentence(),
       caixaId: caixaAleatoria.id,
       status: dataDescarte < new Date() ? StatusDocumento.DESCARTE_PENDENTE : 
               faker.helpers.enumValue(StatusDocumento),
-      observacoes: faker.datatype.boolean() ? faker.lorem.sentence() : undefined,
+      observacoes: Math.random() > 0.5 ? faker.lorem.sentence() : undefined,
     });
   }
   
@@ -118,12 +117,12 @@ export const gerarAlertasMock = (documentos: Documento[], caixas: Caixa[]): Aler
 
   documentosDescarteProximo.forEach(doc => {
     alertas.push({
-      id: faker.datatype.uuid(),
+      id: faker.string.uuid(),
       tipo: TipoAlerta.DESCARTE_PROXIMO,
       titulo: 'Descarte Próximo',
       mensagem: `Documento ${doc.numero} deve ser descartado em ${format(doc.dataDescarte, 'dd/MM/yyyy')}`,
-      data: faker.date.recent(7),
-      lido: faker.datatype.boolean(),
+      data: faker.date.recent({ days: 7 }),
+      lido: Math.random() > 0.5,
       prioridade: PrioridadeAlerta.MEDIA,
     });
   });
@@ -133,12 +132,12 @@ export const gerarAlertasMock = (documentos: Documento[], caixas: Caixa[]): Aler
   
   documentosDescarteVencido.slice(0, 10).forEach(doc => { // Limitar a 10 para não sobrecarregar
     alertas.push({
-      id: faker.datatype.uuid(),
+      id: faker.string.uuid(),
       tipo: TipoAlerta.DESCARTE_VENCIDO,
       titulo: 'Descarte Vencido',
       mensagem: `Documento ${doc.numero} deveria ter sido descartado em ${format(doc.dataDescarte, 'dd/MM/yyyy')}`,
-      data: faker.date.recent(30),
-      lido: faker.datatype.boolean(),
+      data: faker.date.recent({ days: 30 }),
+      lido: Math.random() > 0.5,
       prioridade: PrioridadeAlerta.ALTA,
     });
   });
@@ -148,12 +147,12 @@ export const gerarAlertasMock = (documentos: Documento[], caixas: Caixa[]): Aler
   
   caixassCheias.forEach(caixa => {
     alertas.push({
-      id: faker.datatype.uuid(),
+      id: faker.string.uuid(),
       tipo: TipoAlerta.CAIXA_CHEIA,
       titulo: 'Caixa Cheia',
       mensagem: `Caixa ${caixa.numero} está cheia e precisa de atenção`,
-      data: faker.date.recent(14),
-      lido: faker.datatype.boolean(),
+      data: faker.date.recent({ days: 14 }),
+      lido: Math.random() > 0.5,
       prioridade: PrioridadeAlerta.MEDIA,
     });
   });
