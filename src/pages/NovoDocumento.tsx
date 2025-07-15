@@ -31,6 +31,7 @@ interface FormData {
   descricao: string;
   caixaId: string;
   observacoes: string;
+  arquivo: File | null;
 }
 
 const NovoDocumento: React.FC = () => {
@@ -46,10 +47,21 @@ const NovoDocumento: React.FC = () => {
     descricao: '',
     caixaId: '',
     observacoes: '',
+    arquivo: null,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
+    setFormData(prev => ({ ...prev, arquivo: file }));
+    
+    // Limpar erro do campo quando um arquivo for selecionado
+    if (errors.arquivo && file) {
+      setErrors(prev => ({ ...prev, arquivo: '' }));
+    }
+  };
 
   const handleChange = (field: keyof FormData) => (
     event: any
@@ -262,6 +274,36 @@ const NovoDocumento: React.FC = () => {
                     placeholder="Observações adicionais sobre o documento"
                   />
                 </Box>
+
+                <Box gridColumn={{ xs: "1", md: "1 / -1" }}>
+                  <Box>
+                    <Typography variant="body2" color="textSecondary" mb={1}>
+                      Arquivo PDF do Documento
+                    </Typography>
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileChange}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        border: errors.arquivo ? '1px solid #d32f2f' : '1px solid #ccc',
+                        borderRadius: '4px',
+                        fontSize: '16px',
+                      }}
+                    />
+                    {errors.arquivo && (
+                      <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                        {errors.arquivo}
+                      </Typography>
+                    )}
+                    {formData.arquivo && (
+                      <Typography variant="caption" color="textSecondary" sx={{ mt: 0.5, display: 'block' }}>
+                        Arquivo selecionado: {formData.arquivo.name}
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
               </Box>
             </Paper>
           </Box>
@@ -362,6 +404,12 @@ const NovoDocumento: React.FC = () => {
                     </Typography>
                   </Box>
                 )}
+                
+                <Box mb={2}>
+                  <Typography variant="body2" color="textSecondary">
+                    <strong>Arquivo:</strong> {formData.arquivo ? formData.arquivo.name : 'Nenhum arquivo selecionado'}
+                  </Typography>
+                </Box>
               </CardContent>
             </Card>
 
