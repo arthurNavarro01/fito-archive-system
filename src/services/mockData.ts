@@ -15,7 +15,7 @@ import {
 import { addDays, subDays, format } from 'date-fns';
 
 // Configurar faker para português brasileiro
-faker.locale = 'pt_BR';
+// faker.locale = 'pt_BR'; // Deprecated in newer Faker versions
 
 // Função para gerar localização aleatória
 const gerarLocalizacao = (): Localizacao => ({

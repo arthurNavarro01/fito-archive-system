@@ -1,17 +1,14 @@
-
 import React, { useState } from 'react';
 import {
   Box,
   Typography,
   Paper,
-  Grid,
   TextField,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   Button,
-  Alert,
   Card,
   CardContent,
   Divider,
@@ -23,7 +20,6 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { TipoDocumento, Setor, StatusDocumento } from '../types';
-import { dadosIniciais } from '../services/mockData';
 
 interface FormData {
   numero: string;
@@ -39,12 +35,6 @@ interface FormData {
 
 const NovoDocumento: React.FC = () => {
   const navigate = useNavigate();
-  const { caixas } = dadosIniciais();
-  
-  // Filtrar apenas caixas disponíveis para seleção
-  const caixasDisponiveis = caixas.filter(caixa => 
-    caixa.status === 'Disponível' && caixa.documentosCount < caixa.capacidade
-  );
 
   const [formData, setFormData] = useState<FormData>({
     numero: '',
@@ -58,23 +48,23 @@ const NovoDocumento: React.FC = () => {
     observacoes: '',
   });
 
-  const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (field: keyof FormData) => (
-    event: React.ChangeEvent<HTMLInputElement | { value: unknown }>
+    event: any
   ) => {
-    const value = event.target.value as string;
+    const value = event.target.value;
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Limpar erro do campo quando ele for preenchido
     if (errors[field] && value) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<FormData> = {};
+    const newErrors: Record<string, string> = {};
 
     if (!formData.numero.trim()) newErrors.numero = 'Número é obrigatório';
     if (!formData.tipo) newErrors.tipo = 'Tipo é obrigatório';
@@ -83,13 +73,10 @@ const NovoDocumento: React.FC = () => {
     if (!formData.dataArquivamento) newErrors.dataArquivamento = 'Data de arquivamento é obrigatória';
     if (!formData.dataDescarte) newErrors.dataDescarte = 'Data de descarte é obrigatória';
     if (!formData.descricao.trim()) newErrors.descricao = 'Descrição é obrigatória';
-    if (!formData.caixaId) newErrors.caixaId = 'Caixa é obrigatória';
 
     // Validar se data de descarte é posterior à data de arquivamento
     if (formData.dataArquivamento && formData.dataDescarte) {
-      const dataArq = new Date(formData.dataArquivamento);
-      const dataDesc = new Date(formData.dataDescarte);
-      if (dataDesc <= dataArq) {
+      if (new Date(formData.dataDescarte) <= new Date(formData.dataArquivamento)) {
         newErrors.dataDescarte = 'Data de descarte deve ser posterior à data de arquivamento';
       }
     }
@@ -130,7 +117,18 @@ const NovoDocumento: React.FC = () => {
     navigate('/documentos');
   };
 
-  const caixaSelecionada = caixas.find(caixa => caixa.id === formData.caixaId);
+  const calcularDataDescarte = (anos: number) => {
+    if (formData.dataArquivamento) {
+      const dataArquivamento = new Date(formData.dataArquivamento);
+      dataArquivamento.setFullYear(dataArquivamento.getFullYear() + anos);
+      const dataDescarte = dataArquivamento.toISOString().split('T')[0];
+      setFormData(prev => ({ ...prev, dataDescarte }));
+      
+      if (errors.dataDescarte) {
+        setErrors(prev => ({ ...prev, dataDescarte: '' }));
+      }
+    }
+  };
 
   return (
     <Box>
@@ -145,10 +143,10 @@ const NovoDocumento: React.FC = () => {
       </Box>
 
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
+        <Box display="grid" gridTemplateColumns={{ xs: "1fr", md: "2fr 1fr" }} gap={3}>
           {/* Formulário Principal */}
-          <Grid item xs={12} md={8}>
-            <Paper sx={{ p: 3 }}>
+          <Box>
+            <Paper sx={{ p: 3, mb: 3 }}>
               <Box display="flex" alignItems="center" gap={2} mb={3}>
                 <Description color="primary" />
                 <Typography variant="h6" fontWeight={600}>
@@ -156,215 +154,244 @@ const NovoDocumento: React.FC = () => {
                 </Typography>
               </Box>
 
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Número do Documento"
-                    value={formData.numero}
-                    onChange={handleChange('numero')}
-                    error={!!errors.numero}
-                    helperText={errors.numero}
-                    placeholder="Ex: DOC-001234"
-                  />
-                </Grid>
+              <Box display="grid" gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }} gap={3}>
+                <TextField
+                  fullWidth
+                  label="Número do Documento"
+                  value={formData.numero}
+                  onChange={handleChange('numero')}
+                  error={!!errors.numero}
+                  helperText={errors.numero}
+                  placeholder="Ex: DOC-000001"
+                />
 
-                <Grid item xs={12} md={6}>
-                  <FormControl fullWidth error={!!errors.tipo}>
-                    <InputLabel>Tipo de Documento</InputLabel>
-                    <Select
-                      value={formData.tipo}
-                      onChange={handleChange('tipo')}
-                      label="Tipo de Documento"
-                    >
-                      {Object.values(TipoDocumento).map((tipo) => (
-                        <MenuItem key={tipo} value={tipo}>
-                          {tipo}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.tipo && (
-                      <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
-                        {errors.tipo}
-                      </Typography>
-                    )}
-                  </FormControl>
-                </Grid>
+                <FormControl fullWidth error={!!errors.tipo}>
+                  <InputLabel>Tipo de Documento</InputLabel>
+                  <Select
+                    value={formData.tipo}
+                    onChange={handleChange('tipo')}
+                    label="Tipo de Documento"
+                  >
+                    {Object.values(TipoDocumento).map((tipo) => (
+                      <MenuItem key={tipo} value={tipo}>
+                        {tipo}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.tipo && (
+                    <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+                      {errors.tipo}
+                    </Typography>
+                  )}
+                </FormControl>
 
-                <Grid item xs={12} md={6}>
-                  <FormControl fullWidth error={!!errors.setor}>
-                    <InputLabel>Setor</InputLabel>
-                    <Select
-                      value={formData.setor}
-                      onChange={handleChange('setor')}
-                      label="Setor"
-                    >
-                      {Object.values(Setor).map((setor) => (
-                        <MenuItem key={setor} value={setor}>
-                          {setor}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.setor && (
-                      <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
-                        {errors.setor}
-                      </Typography>
-                    )}
-                  </FormControl>
-                </Grid>
+                <FormControl fullWidth error={!!errors.setor}>
+                  <InputLabel>Setor</InputLabel>
+                  <Select
+                    value={formData.setor}
+                    onChange={handleChange('setor')}
+                    label="Setor"
+                  >
+                    {Object.values(Setor).map((setor) => (
+                      <MenuItem key={setor} value={setor}>
+                        {setor}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.setor && (
+                    <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+                      {errors.setor}
+                    </Typography>
+                  )}
+                </FormControl>
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Responsável"
-                    value={formData.responsavel}
-                    onChange={handleChange('responsavel')}
-                    error={!!errors.responsavel}
-                    helperText={errors.responsavel}
-                    placeholder="Nome do responsável"
-                  />
-                </Grid>
+                <TextField
+                  fullWidth
+                  label="Responsável"
+                  value={formData.responsavel}
+                  onChange={handleChange('responsavel')}
+                  error={!!errors.responsavel}
+                  helperText={errors.responsavel}
+                  placeholder="Nome do responsável pelo documento"
+                />
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Data de Arquivamento"
-                    type="date"
-                    value={formData.dataArquivamento}
-                    onChange={handleChange('dataArquivamento')}
-                    error={!!errors.dataArquivamento}
-                    helperText={errors.dataArquivamento}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Grid>
+                <TextField
+                  fullWidth
+                  label="Data de Arquivamento"
+                  type="date"
+                  value={formData.dataArquivamento}
+                  onChange={handleChange('dataArquivamento')}
+                  error={!!errors.dataArquivamento}
+                  helperText={errors.dataArquivamento}
+                  InputLabelProps={{ shrink: true }}
+                />
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Data de Descarte"
-                    type="date"
-                    value={formData.dataDescarte}
-                    onChange={handleChange('dataDescarte')}
-                    error={!!errors.dataDescarte}
-                    helperText={errors.dataDescarte}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Grid>
+                <TextField
+                  fullWidth
+                  label="Data de Descarte"
+                  type="date"
+                  value={formData.dataDescarte}
+                  onChange={handleChange('dataDescarte')}
+                  error={!!errors.dataDescarte}
+                  helperText={errors.dataDescarte}
+                  InputLabelProps={{ shrink: true }}
+                />
 
-                <Grid item xs={12}>
+                <Box gridColumn={{ xs: "1", md: "1 / -1" }}>
                   <TextField
                     fullWidth
                     label="Descrição"
-                    multiline
-                    rows={3}
                     value={formData.descricao}
                     onChange={handleChange('descricao')}
                     error={!!errors.descricao}
                     helperText={errors.descricao}
-                    placeholder="Descreva o conteúdo do documento"
+                    placeholder="Descrição detalhada do documento"
+                    multiline
+                    rows={2}
                   />
-                </Grid>
+                </Box>
 
-                <Grid item xs={12}>
+                <Box gridColumn={{ xs: "1", md: "1 / -1" }}>
                   <TextField
                     fullWidth
                     label="Observações (opcional)"
                     multiline
-                    rows={2}
+                    rows={3}
                     value={formData.observacoes}
                     onChange={handleChange('observacoes')}
-                    placeholder="Observações adicionais"
+                    placeholder="Observações adicionais sobre o documento"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Paper>
-          </Grid>
+          </Box>
 
-          {/* Sidebar com Seleção de Caixa */}
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 3, mb: 3 }}>
-              <Typography variant="h6" gutterBottom fontWeight={600}>
-                Seleção de Caixa
-              </Typography>
-              
-              <FormControl fullWidth error={!!errors.caixaId}>
-                <InputLabel>Caixa de Arquivo</InputLabel>
-                <Select
-                  value={formData.caixaId}
-                  onChange={handleChange('caixaId')}
-                  label="Caixa de Arquivo"
-                >
-                  {caixasDisponiveis.map((caixa) => (
-                    <MenuItem key={caixa.id} value={caixa.id}>
-                      {caixa.numero} - {caixa.setor}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {errors.caixaId && (
-                  <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
-                    {errors.caixaId}
+          {/* Sidebar */}
+          <Box>
+            {/* Atalhos para Data de Descarte */}
+            <Card sx={{ mb: 3 }}>
+              <CardContent>
+                <Typography variant="h6" gutterBottom fontWeight={600}>
+                  Definir Data de Descarte
+                </Typography>
+                <Typography variant="body2" color="textSecondary" gutterBottom>
+                  Baseado na data de arquivamento:
+                </Typography>
+                <Divider sx={{ my: 2 }} />
+                
+                <Box display="grid" gap={1}>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    onClick={() => calcularDataDescarte(1)}
+                    disabled={!formData.dataArquivamento}
+                  >
+                    + 1 ano
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    onClick={() => calcularDataDescarte(5)}
+                    disabled={!formData.dataArquivamento}
+                  >
+                    + 5 anos
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    onClick={() => calcularDataDescarte(7)}
+                    disabled={!formData.dataArquivamento}
+                  >
+                    + 7 anos
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    onClick={() => calcularDataDescarte(10)}
+                    disabled={!formData.dataArquivamento}
+                  >
+                    + 10 anos
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+
+            {/* Preview do Documento */}
+            <Card sx={{ mb: 3 }}>
+              <CardContent>
+                <Typography variant="h6" gutterBottom fontWeight={600}>
+                  Preview do Documento
+                </Typography>
+                <Divider sx={{ my: 2 }} />
+                
+                <Box mb={2}>
+                  <Typography variant="body2" color="textSecondary">
+                    <strong>Número:</strong> {formData.numero || 'Não informado'}
                   </Typography>
+                </Box>
+                
+                <Box mb={2}>
+                  <Typography variant="body2" color="textSecondary">
+                    <strong>Tipo:</strong> {formData.tipo || 'Não informado'}
+                  </Typography>
+                </Box>
+                
+                <Box mb={2}>
+                  <Typography variant="body2" color="textSecondary">
+                    <strong>Setor:</strong> {formData.setor || 'Não informado'}
+                  </Typography>
+                </Box>
+                
+                <Box mb={2}>
+                  <Typography variant="body2" color="textSecondary">
+                    <strong>Responsável:</strong> {formData.responsavel || 'Não informado'}
+                  </Typography>
+                </Box>
+                
+                {formData.dataArquivamento && formData.dataDescarte && (
+                  <Box mb={2}>
+                    <Typography variant="body2" color="textSecondary">
+                      <strong>Período de Retenção:</strong>
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" sx={{ ml: 1 }}>
+                      {Math.round((new Date(formData.dataDescarte).getTime() - new Date(formData.dataArquivamento).getTime()) / (1000 * 60 * 60 * 24 * 365))} anos
+                    </Typography>
+                  </Box>
                 )}
-              </FormControl>
-
-              {caixaSelecionada && (
-                <Card sx={{ mt: 2 }}>
-                  <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                    <Typography variant="subtitle2" gutterBottom>
-                      Detalhes da Caixa
-                    </Typography>
-                    <Divider sx={{ my: 1 }} />
-                    <Typography variant="body2" color="textSecondary">
-                      <strong>Setor:</strong> {caixaSelecionada.setor}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      <strong>Localização:</strong> {caixaSelecionada.localizacao.rua}, {caixaSelecionada.localizacao.estante}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      <strong>Capacidade:</strong> {caixaSelecionada.documentosCount}/{caixaSelecionada.capacidade}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              )}
-
-              {caixasDisponiveis.length === 0 && (
-                <Alert severity="warning" sx={{ mt: 2 }}>
-                  Nenhuma caixa disponível. Crie uma nova caixa primeiro.
-                </Alert>
-              )}
-            </Paper>
+              </CardContent>
+            </Card>
 
             {/* Botões de Ação */}
             <Paper sx={{ p: 3 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    fullWidth
-                    size="large"
-                    startIcon={<Save />}
-                    disabled={isSubmitting || caixasDisponiveis.length === 0}
-                  >
-                    {isSubmitting ? 'Salvando...' : 'Salvar Documento'}
-                  </Button>
-                </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    size="large"
-                    startIcon={<Cancel />}
-                    onClick={handleCancel}
-                    disabled={isSubmitting}
-                  >
-                    Cancelar
-                  </Button>
-                </Grid>
-              </Grid>
+              <Box display="grid" gap={2}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  fullWidth
+                  size="large"
+                  startIcon={<Save />}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Salvando...' : 'Salvar Documento'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  size="large"
+                  startIcon={<Cancel />}
+                  onClick={handleCancel}
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </Button>
+              </Box>
             </Paper>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </form>
     </Box>
   );
