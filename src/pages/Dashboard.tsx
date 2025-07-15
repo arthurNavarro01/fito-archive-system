@@ -1,7 +1,6 @@
 
 import React, { useMemo } from 'react';
 import {
-  Grid,
   Typography,
   Box,
   Paper,
@@ -57,152 +56,148 @@ const Dashboard: React.FC = () => {
       </Box>
 
       {/* Cards de Estatísticas */}
-      <Grid container spacing={3} mb={4}>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Total de Documentos"
-            value={estatisticas.totalDocumentos.toLocaleString()}
-            icon={<Description />}
-            color="primary"
-            subtitle="documentos arquivados"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Total de Caixas"
-            value={estatisticas.totalCaixas.toLocaleString()}
-            icon={<Archive />}
-            color="info"
-            subtitle="caixas cadastradas"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Caixas Indisponíveis"
-            value={estatisticas.caixasIndisponiveis.toLocaleString()}
-            icon={<Warning />}
-            color="warning"
-            subtitle="precisam de atenção"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Descarte Pendente"
-            value={estatisticas.documentosDescartePendente.toLocaleString()}
-            icon={<TrendingUp />}
-            color="error"
-            subtitle="documentos para descartar"
-          />
-        </Grid>
-      </Grid>
+      <Box
+        display="grid"
+        gridTemplateColumns={{ xs: "1fr", sm: "1fr 1fr", md: "repeat(4, 1fr)" }}
+        gap={3}
+        mb={4}
+      >
+        <StatCard
+          title="Total de Documentos"
+          value={estatisticas.totalDocumentos.toLocaleString()}
+          icon={<Description />}
+          color="primary"
+          subtitle="documentos arquivados"
+        />
+        <StatCard
+          title="Total de Caixas"
+          value={estatisticas.totalCaixas.toLocaleString()}
+          icon={<Archive />}
+          color="info"
+          subtitle="caixas cadastradas"
+        />
+        <StatCard
+          title="Caixas Indisponíveis"
+          value={estatisticas.caixasIndisponiveis.toLocaleString()}
+          icon={<Warning />}
+          color="warning"
+          subtitle="precisam de atenção"
+        />
+        <StatCard
+          title="Descarte Pendente"
+          value={estatisticas.documentosDescartePendente.toLocaleString()}
+          icon={<TrendingUp />}
+          color="error"
+          subtitle="documentos para descartar"
+        />
+      </Box>
 
       {/* Gráficos */}
-      <Grid container spacing={3} mb={4}>
-        <Grid item xs={12} lg={8}>
-          <ChartCard
-            title="Documentos por Setor"
-            type="bar"
-            data={dadosGraficoSetor}
-            dataKey="quantidade"
-            nameKey="setor"
-            height={350}
-          />
-        </Grid>
-        <Grid item xs={12} lg={4}>
-          <ChartCard
-            title="Documentos por Tipo"
-            type="pie"
-            data={dadosGraficoTipo}
-            dataKey="quantidade"
-            nameKey="tipo"
-            height={350}
-          />
-        </Grid>
-      </Grid>
+      <Box
+        display="grid"
+        gridTemplateColumns={{ xs: "1fr", lg: "2fr 1fr" }}
+        gap={3}
+        mb={4}
+      >
+        <ChartCard
+          title="Documentos por Setor"
+          type="bar"
+          data={dadosGraficoSetor}
+          dataKey="quantidade"
+          nameKey="setor"
+          height={350}
+        />
+        <ChartCard
+          title="Documentos por Tipo"
+          type="pie"
+          data={dadosGraficoTipo}
+          dataKey="quantidade"
+          nameKey="tipo"
+          height={350}
+        />
+      </Box>
 
       {/* Alertas e Tabelas */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} lg={4}>
-          <AlertsList alertas={alertas} maxItems={8} />
-        </Grid>
+      <Box
+        display="grid"
+        gridTemplateColumns={{ xs: "1fr", lg: "repeat(3, 1fr)" }}
+        gap={3}
+      >
+        <AlertsList alertas={alertas} maxItems={8} />
         
-        <Grid item xs={12} lg={4}>
-          {/* Últimas Caixas Cadastradas */}
-          <Paper sx={{ p: 2, height: 'fit-content' }}>
-            <Typography variant="h6" gutterBottom fontWeight={600}>
-              Últimas Caixas Cadastradas
-            </Typography>
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Número</TableCell>
-                    <TableCell>Setor</TableCell>
-                    <TableCell>Data</TableCell>
+        {/* Últimas Caixas Cadastradas */}
+        <Paper sx={{ p: 2, height: 'fit-content' }}>
+          <Typography variant="h6" gutterBottom fontWeight={600}>
+            Últimas Caixas Cadastradas
+          </Typography>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Número</TableCell>
+                  <TableCell>Setor</TableCell>
+                  <TableCell>Data</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {ultimasCaixas.map((caixa) => (
+                  <TableRow key={caixa.id}>
+                    <TableCell>{caixa.numero}</TableCell>
+                    <TableCell>
+                      <Typography variant="body2" noWrap>
+                        {caixa.setor}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2">
+                        {format(caixa.dataAbertura, 'dd/MM/yy', { locale: ptBR })}
+                      </Typography>
+                    </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {ultimasCaixas.map((caixa) => (
-                    <TableRow key={caixa.id}>
-                      <TableCell>{caixa.numero}</TableCell>
-                      <TableCell>
-                        <Typography variant="body2" noWrap>
-                          {caixa.setor}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {format(caixa.dataAbertura, 'dd/MM/yy', { locale: ptBR })}
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        </Grid>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
 
-        <Grid item xs={12} lg={4}>
-          {/* Documentos Recentes */}
-          <Paper sx={{ p: 2, height: 'fit-content' }}>
-            <Typography variant="h6" gutterBottom fontWeight={600}>
-              Documentos Recentes
-            </Typography>
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Número</TableCell>
-                    <TableCell>Tipo</TableCell>
-                    <TableCell>Status</TableCell>
+        {/* Documentos Recentes */}
+        <Paper sx={{ p: 2, height: 'fit-content' }}>
+          <Typography variant="h6" gutterBottom fontWeight={600}>
+            Documentos Recentes
+          </Typography>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Número</TableCell>
+                  <TableCell>Tipo</TableCell>
+                  <TableCell>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {documentosRecentes.map((doc) => (
+                  <TableRow key={doc.id}>
+                    <TableCell>{doc.numero}</TableCell>
+                    <TableCell>
+                      <Typography variant="body2" noWrap>
+                        {doc.tipo}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={doc.status}
+                        size="small"
+                        color={doc.status === 'Descarte Pendente' ? 'error' : 'success'}
+                        variant="outlined"
+                      />
+                    </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {documentosRecentes.map((doc) => (
-                    <TableRow key={doc.id}>
-                      <TableCell>{doc.numero}</TableCell>
-                      <TableCell>
-                        <Typography variant="body2" noWrap>
-                          {doc.tipo}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={doc.status}
-                          size="small"
-                          color={doc.status === 'Descarte Pendente' ? 'error' : 'success'}
-                          variant="outlined"
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        </Grid>
-      </Grid>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      </Box>
     </Box>
   );
 };

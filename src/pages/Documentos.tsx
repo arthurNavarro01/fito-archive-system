@@ -103,82 +103,77 @@ const Documentos: React.FC = () => {
 
       {/* Filtros */}
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Grid container spacing={3} alignItems="center">
-          <Grid item xs={12} md={3}>
-            <TextField
-              fullWidth
-              placeholder="Buscar documentos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: <Search sx={{ mr: 1, color: 'action.active' }} />,
-              }}
-            />
-          </Grid>
+        <Box
+          display="grid"
+          gridTemplateColumns={{ xs: "1fr", md: "3fr 2fr 2fr 2fr 3fr" }}
+          gap={3}
+          alignItems="center"
+        >
+          <TextField
+            fullWidth
+            placeholder="Buscar documentos..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: <Search sx={{ mr: 1, color: 'action.active' }} />,
+            }}
+          />
           
-          <Grid item xs={12} md={2}>
-            <FormControl fullWidth>
-              <InputLabel>Setor</InputLabel>
-              <Select
-                value={filterSetor}
-                onChange={(e) => setFilterSetor(e.target.value)}
-                label="Setor"
-              >
-                <MenuItem value="">Todos</MenuItem>
-                {Object.values(Setor).map((setor) => (
-                  <MenuItem key={setor} value={setor}>
-                    {setor}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
+          <FormControl fullWidth>
+            <InputLabel>Setor</InputLabel>
+            <Select
+              value={filterSetor}
+              onChange={(e) => setFilterSetor(e.target.value)}
+              label="Setor"
+            >
+              <MenuItem value="">Todos</MenuItem>
+              {Object.values(Setor).map((setor) => (
+                <MenuItem key={setor} value={setor}>
+                  {setor}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-          <Grid item xs={12} md={2}>
-            <FormControl fullWidth>
-              <InputLabel>Tipo</InputLabel>
-              <Select
-                value={filterTipo}
-                onChange={(e) => setFilterTipo(e.target.value)}
-                label="Tipo"
-              >
-                <MenuItem value="">Todos</MenuItem>
-                {Object.values(TipoDocumento).map((tipo) => (
-                  <MenuItem key={tipo} value={tipo}>
-                    {tipo}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
+          <FormControl fullWidth>
+            <InputLabel>Tipo</InputLabel>
+            <Select
+              value={filterTipo}
+              onChange={(e) => setFilterTipo(e.target.value)}
+              label="Tipo"
+            >
+              <MenuItem value="">Todos</MenuItem>
+              {Object.values(TipoDocumento).map((tipo) => (
+                <MenuItem key={tipo} value={tipo}>
+                  {tipo}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-          <Grid item xs={12} md={2}>
-            <FormControl fullWidth>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                label="Status"
-              >
-                <MenuItem value="">Todos</MenuItem>
-                {Object.values(StatusDocumento).map((status) => (
-                  <MenuItem key={status} value={status}>
-                    {status}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
+          <FormControl fullWidth>
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              label="Status"
+            >
+              <MenuItem value="">Todos</MenuItem>
+              {Object.values(StatusDocumento).map((status) => (
+                <MenuItem key={status} value={status}>
+                  {status}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-          <Grid item xs={12} md={3}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <FilterList color="action" />
-              <Typography variant="body2" color="textSecondary">
-                {documentosFiltrados.length} de {documentos.length} documentos
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
+          <Box display="flex" alignItems="center" gap={1}>
+            <FilterList color="action" />
+            <Typography variant="body2" color="textSecondary">
+              {documentosFiltrados.length} de {documentos.length} documentos
+            </Typography>
+          </Box>
+        </Box>
       </Paper>
 
       {/* Tabela */}

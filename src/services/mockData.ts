@@ -31,7 +31,7 @@ export const gerarCaixasMock = (quantidade: number = 50): Caixa[] => {
   const caixas: Caixa[] = [];
   
   for (let i = 0; i < quantidade; i++) {
-    const dataAbertura = faker.date.between('2020-01-01', '2024-11-01');
+    const dataAbertura = faker.date.between({ from: '2020-01-01', to: '2024-11-01' });
     const documentosCount = faker.datatype.number({ min: 0, max: 100 });
     
     caixas.push({
@@ -58,7 +58,7 @@ export const gerarDocumentosMock = (caixas: Caixa[], quantidade: number = 200): 
   const documentos: Documento[] = [];
   
   for (let i = 0; i < quantidade; i++) {
-    const dataArquivamento = faker.date.between('2020-01-01', '2024-11-01');
+    const dataArquivamento = faker.date.between({ from: '2020-01-01', to: '2024-11-01' });
     const dataDescarte = addDays(dataArquivamento, faker.datatype.number({ min: 365, max: 2555 })); // 1-7 anos
     const caixaAleatoria = faker.helpers.arrayElement(caixas);
     

@@ -19,7 +19,6 @@ import {
   Chip,
   IconButton,
   Tooltip,
-  Grid,
   LinearProgress,
 } from '@mui/material';
 import {
@@ -112,64 +111,61 @@ const Caixas: React.FC = () => {
 
       {/* Filtros */}
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Grid container spacing={3} alignItems="center">
-          <Grid item xs={12} md={4}>
-            <TextField
-              fullWidth
-              placeholder="Buscar caixas..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: <Search sx={{ mr: 1, color: 'action.active' }} />,
-              }}
-            />
-          </Grid>
+        <Box
+          display="grid"
+          gridTemplateColumns={{ xs: "1fr", md: "2fr 1fr 1fr auto" }}
+          gap={3}
+          alignItems="center"
+        >
+          <TextField
+            fullWidth
+            placeholder="Buscar caixas..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: <Search sx={{ mr: 1, color: 'action.active' }} />,
+            }}
+          />
           
-          <Grid item xs={12} md={3}>
-            <FormControl fullWidth>
-              <InputLabel>Setor</InputLabel>
-              <Select
-                value={filterSetor}
-                onChange={(e) => setFilterSetor(e.target.value)}
-                label="Setor"
-              >
-                <MenuItem value="">Todos</MenuItem>
-                {Object.values(Setor).map((setor) => (
-                  <MenuItem key={setor} value={setor}>
-                    {setor}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
+          <FormControl fullWidth>
+            <InputLabel>Setor</InputLabel>
+            <Select
+              value={filterSetor}
+              onChange={(e) => setFilterSetor(e.target.value)}
+              label="Setor"
+            >
+              <MenuItem value="">Todos</MenuItem>
+              {Object.values(Setor).map((setor) => (
+                <MenuItem key={setor} value={setor}>
+                  {setor}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-          <Grid item xs={12} md={3}>
-            <FormControl fullWidth>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                label="Status"
-              >
-                <MenuItem value="">Todos</MenuItem>
-                {Object.values(StatusCaixa).map((status) => (
-                  <MenuItem key={status} value={status}>
-                    {status}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
+          <FormControl fullWidth>
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              label="Status"
+            >
+              <MenuItem value="">Todos</MenuItem>
+              {Object.values(StatusCaixa).map((status) => (
+                <MenuItem key={status} value={status}>
+                  {status}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-          <Grid item xs={12} md={2}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <FilterList color="action" />
-              <Typography variant="body2" color="textSecondary">
-                {caixasFiltradas.length} de {caixas.length} caixas
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
+          <Box display="flex" alignItems="center" gap={1}>
+            <FilterList color="action" />
+            <Typography variant="body2" color="textSecondary">
+              {caixasFiltradas.length} de {caixas.length} caixas
+            </Typography>
+          </Box>
+        </Box>
       </Paper>
 
       {/* Tabela */}

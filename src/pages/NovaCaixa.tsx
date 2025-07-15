@@ -1,10 +1,8 @@
-
 import React, { useState } from 'react';
 import {
   Box,
   Typography,
   Paper,
-  Grid,
   TextField,
   FormControl,
   InputLabel,
@@ -54,11 +52,11 @@ const NovaCaixa: React.FC = () => {
     posicao: '',
   });
 
-  const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [errors, setErrors] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (field: keyof FormData) => (
-    event: React.ChangeEvent<HTMLInputElement | { value: unknown }>
+    event: any
   ) => {
     const value = event.target.value;
     setFormData(prev => ({ 
@@ -68,21 +66,21 @@ const NovaCaixa: React.FC = () => {
     
     // Limpar erro do campo quando ele for preenchido
     if (errors[field] && value) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors((prev: any) => ({ ...prev, [field]: undefined }));
     }
   };
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<FormData> = {};
+    const newErrors: any = {};
 
     if (!formData.numero.trim()) newErrors.numero = 'Número é obrigatório';
     if (!formData.setor) newErrors.setor = 'Setor é obrigatório';
     if (!formData.responsavel.trim()) newErrors.responsavel = 'Responsável é obrigatório';
     if (!formData.dataAbertura) newErrors.dataAbertura = 'Data de abertura é obrigatória';
-    if (!formData.capacidade || formData.capacidade <= 0) newErrors.capacidade = 'Capacidade deve ser maior que zero';
+    if (!formData.capacidade || Number(formData.capacidade) <= 0) newErrors.capacidade = 'Capacidade deve ser maior que zero';
     if (!formData.rua.trim()) newErrors.rua = 'Rua é obrigatória';
     if (!formData.estante.trim()) newErrors.estante = 'Estante é obrigatória';
-    if (!formData.andar || formData.andar <= 0) newErrors.andar = 'Andar deve ser maior que zero';
+    if (!formData.andar || Number(formData.andar) <= 0) newErrors.andar = 'Andar deve ser maior que zero';
     if (!formData.posicao.trim()) newErrors.posicao = 'Posição é obrigatória';
 
     setErrors(newErrors);
@@ -141,9 +139,9 @@ const NovaCaixa: React.FC = () => {
       </Box>
 
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
+        <Box display="grid" gridTemplateColumns={{ xs: "1fr", md: "2fr 1fr" }} gap={3}>
           {/* Formulário Principal */}
-          <Grid item xs={12} md={8}>
+          <Box>
             <Paper sx={{ p: 3, mb: 3 }}>
               <Box display="flex" alignItems="center" gap={2} mb={3}>
                 <Archive color="primary" />
@@ -152,80 +150,70 @@ const NovaCaixa: React.FC = () => {
                 </Typography>
               </Box>
 
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Número da Caixa"
-                    value={formData.numero}
-                    onChange={handleChange('numero')}
-                    error={!!errors.numero}
-                    helperText={errors.numero}
-                    placeholder="Ex: CX-0001"
-                  />
-                </Grid>
+              <Box display="grid" gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }} gap={3}>
+                <TextField
+                  fullWidth
+                  label="Número da Caixa"
+                  value={formData.numero}
+                  onChange={handleChange('numero')}
+                  error={!!errors.numero}
+                  helperText={errors.numero}
+                  placeholder="Ex: CX-0001"
+                />
 
-                <Grid item xs={12} md={6}>
-                  <FormControl fullWidth error={!!errors.setor}>
-                    <InputLabel>Setor</InputLabel>
-                    <Select
-                      value={formData.setor}
-                      onChange={handleChange('setor')}
-                      label="Setor"
-                    >
-                      {Object.values(Setor).map((setor) => (
-                        <MenuItem key={setor} value={setor}>
-                          {setor}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.setor && (
-                      <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
-                        {errors.setor}
-                      </Typography>
-                    )}
-                  </FormControl>
-                </Grid>
+                <FormControl fullWidth error={!!errors.setor}>
+                  <InputLabel>Setor</InputLabel>
+                  <Select
+                    value={formData.setor}
+                    onChange={handleChange('setor')}
+                    label="Setor"
+                  >
+                    {Object.values(Setor).map((setor) => (
+                      <MenuItem key={setor} value={setor}>
+                        {setor}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.setor && (
+                    <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+                      {errors.setor}
+                    </Typography>
+                  )}
+                </FormControl>
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Responsável"
-                    value={formData.responsavel}
-                    onChange={handleChange('responsavel')}
-                    error={!!errors.responsavel}
-                    helperText={errors.responsavel}
-                    placeholder="Nome do responsável"
-                  />
-                </Grid>
+                <TextField
+                  fullWidth
+                  label="Responsável"
+                  value={formData.responsavel}
+                  onChange={handleChange('responsavel')}
+                  error={!!errors.responsavel}
+                  helperText={errors.responsavel}
+                  placeholder="Nome do responsável"
+                />
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Data de Abertura"
-                    type="date"
-                    value={formData.dataAbertura}
-                    onChange={handleChange('dataAbertura')}
-                    error={!!errors.dataAbertura}
-                    helperText={errors.dataAbertura}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Grid>
+                <TextField
+                  fullWidth
+                  label="Data de Abertura"
+                  type="date"
+                  value={formData.dataAbertura}
+                  onChange={handleChange('dataAbertura')}
+                  error={!!errors.dataAbertura}
+                  helperText={errors.dataAbertura}
+                  InputLabelProps={{ shrink: true }}
+                />
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Capacidade"
-                    type="number"
-                    value={formData.capacidade}
-                    onChange={handleChange('capacidade')}
-                    error={!!errors.capacidade}
-                    helperText={errors.capacidade || 'Número máximo de documentos'}
-                    inputProps={{ min: 1, max: 1000 }}
-                  />
-                </Grid>
+                <TextField
+                  fullWidth
+                  label="Capacidade"
+                  type="number"
+                  value={formData.capacidade}
+                  onChange={handleChange('capacidade')}
+                  error={!!errors.capacidade}
+                  helperText={errors.capacidade || 'Número máximo de documentos'}
+                  inputProps={{ min: 1, max: 1000 }}
+                />
 
-                <Grid item xs={12}>
+                <Box gridColumn={{ xs: "1", md: "1 / -1" }}>
                   <TextField
                     fullWidth
                     label="Observações (opcional)"
@@ -235,8 +223,8 @@ const NovaCaixa: React.FC = () => {
                     onChange={handleChange('observacoes')}
                     placeholder="Observações adicionais sobre a caixa"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Paper>
 
             {/* Localização */}
@@ -248,61 +236,53 @@ const NovaCaixa: React.FC = () => {
                 </Typography>
               </Box>
 
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Rua"
-                    value={formData.rua}
-                    onChange={handleChange('rua')}
-                    error={!!errors.rua}
-                    helperText={errors.rua}
-                    placeholder="Ex: Rua A"
-                  />
-                </Grid>
+              <Box display="grid" gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }} gap={3}>
+                <TextField
+                  fullWidth
+                  label="Rua"
+                  value={formData.rua}
+                  onChange={handleChange('rua')}
+                  error={!!errors.rua}
+                  helperText={errors.rua}
+                  placeholder="Ex: Rua A"
+                />
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Estante"
-                    value={formData.estante}
-                    onChange={handleChange('estante')}
-                    error={!!errors.estante}
-                    helperText={errors.estante}
-                    placeholder="Ex: EST-01"
-                  />
-                </Grid>
+                <TextField
+                  fullWidth
+                  label="Estante"
+                  value={formData.estante}
+                  onChange={handleChange('estante')}
+                  error={!!errors.estante}
+                  helperText={errors.estante}
+                  placeholder="Ex: EST-01"
+                />
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Andar"
-                    type="number"
-                    value={formData.andar}
-                    onChange={handleChange('andar')}
-                    error={!!errors.andar}
-                    helperText={errors.andar}
-                    inputProps={{ min: 1, max: 10 }}
-                  />
-                </Grid>
+                <TextField
+                  fullWidth
+                  label="Andar"
+                  type="number"
+                  value={formData.andar}
+                  onChange={handleChange('andar')}
+                  error={!!errors.andar}
+                  helperText={errors.andar}
+                  inputProps={{ min: 1, max: 10 }}
+                />
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Posição"
-                    value={formData.posicao}
-                    onChange={handleChange('posicao')}
-                    error={!!errors.posicao}
-                    helperText={errors.posicao}
-                    placeholder="Ex: P01"
-                  />
-                </Grid>
-              </Grid>
+                <TextField
+                  fullWidth
+                  label="Posição"
+                  value={formData.posicao}
+                  onChange={handleChange('posicao')}
+                  error={!!errors.posicao}
+                  helperText={errors.posicao}
+                  placeholder="Ex: P01"
+                />
+              </Box>
             </Paper>
-          </Grid>
+          </Box>
 
           {/* Sidebar */}
-          <Grid item xs={12} md={4}>
+          <Box>
             {/* Preview da Caixa */}
             <Card sx={{ mb: 3 }}>
               <CardContent>
@@ -345,35 +325,31 @@ const NovaCaixa: React.FC = () => {
 
             {/* Botões de Ação */}
             <Paper sx={{ p: 3 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    fullWidth
-                    size="large"
-                    startIcon={<Save />}
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? 'Salvando...' : 'Salvar Caixa'}
-                  </Button>
-                </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    size="large"
-                    startIcon={<Cancel />}
-                    onClick={handleCancel}
-                    disabled={isSubmitting}
-                  >
-                    Cancelar
-                  </Button>
-                </Grid>
-              </Grid>
+              <Box display="grid" gap={2}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  fullWidth
+                  size="large"
+                  startIcon={<Save />}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Salvando...' : 'Salvar Caixa'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  size="large"
+                  startIcon={<Cancel />}
+                  onClick={handleCancel}
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </Button>
+              </Box>
             </Paper>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </form>
     </Box>
   );
