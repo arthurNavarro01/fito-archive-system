@@ -20,10 +20,10 @@ faker.locale = 'pt_BR';
 
 // Função para gerar localização aleatória
 const gerarLocalizacao = (): Localizacao => ({
-  rua: `Rua ${faker.random.alpha({ count: 1, casing: 'upper' })}`,
-  estante: `EST-${faker.datatype.number({ min: 1, max: 50 }).toString().padStart(2, '0')}`,
-  andar: faker.datatype.number({ min: 1, max: 5 }),
-  posicao: `P${faker.datatype.number({ min: 1, max: 20 }).toString().padStart(2, '0')}`,
+  rua: `Rua ${faker.string.alpha({ length: 1, casing: 'upper' })}`,
+  estante: `EST-${faker.number.int({ min: 1, max: 50 }).toString().padStart(2, '0')}`,
+  andar: faker.number.int({ min: 1, max: 5 }),
+  posicao: `P${faker.number.int({ min: 1, max: 20 }).toString().padStart(2, '0')}`,
 });
 
 // Gerar caixas mockadas
@@ -32,10 +32,10 @@ export const gerarCaixasMock = (quantidade: number = 50): Caixa[] => {
   
   for (let i = 0; i < quantidade; i++) {
     const dataAbertura = faker.date.between({ from: '2020-01-01', to: '2024-11-01' });
-    const documentosCount = faker.datatype.number({ min: 0, max: 100 });
+    const documentosCount = faker.number.int({ min: 0, max: 100 });
     
     caixas.push({
-      id: faker.datatype.uuid(),
+      id: faker.string.uuid(),
       numero: `CX-${(i + 1).toString().padStart(4, '0')}`,
       setor: faker.helpers.enumValue(Setor),
       localizacao: gerarLocalizacao(),
@@ -59,11 +59,11 @@ export const gerarDocumentosMock = (caixas: Caixa[], quantidade: number = 200): 
   
   for (let i = 0; i < quantidade; i++) {
     const dataArquivamento = faker.date.between({ from: '2020-01-01', to: '2024-11-01' });
-    const dataDescarte = addDays(dataArquivamento, faker.datatype.number({ min: 365, max: 2555 })); // 1-7 anos
+    const dataDescarte = addDays(dataArquivamento, faker.number.int({ min: 365, max: 2555 })); // 1-7 anos
     const caixaAleatoria = faker.helpers.arrayElement(caixas);
     
     documentos.push({
-      id: faker.datatype.uuid(),
+      id: faker.string.uuid(),
       numero: `DOC-${(i + 1).toString().padStart(6, '0')}`,
       tipo: faker.helpers.enumValue(TipoDocumento),
       setor: caixaAleatoria.setor,
