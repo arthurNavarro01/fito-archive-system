@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Input } from '../components/ui/input';
-import { Button } from '../components/ui/button';
 
 const Login: React.FC = () => {
   const { login } = useAuth();
@@ -26,32 +24,44 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-80">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-        <div className="mb-4">
-          <Input
-            type="text"
-            placeholder="Usuário"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <Input
-            type="password"
-            placeholder="Senha"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
-        <Button type="submit" className="w-full" disabled={loading}>
+    <div className="min-h-screen flex items-center justify-center bg-[#1e293b] animate-fade-in">
+      <form onSubmit={handleSubmit} className="bg-white p-10 rounded-2xl shadow-2xl w-96 flex flex-col gap-6">
+        <h2 className="text-3xl font-bold text-[#2563eb] text-center mb-2">Bem-vindo ao FITO</h2>
+        <p className="text-center text-[#64748b] mb-4">Acesso ao Sistema de Arquivo Morto</p>
+        <input
+          type="text"
+          placeholder="Usuário"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          required
+          className="px-4 py-3 rounded-lg border border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-[#1e293b] bg-[#f1f5f9]"
+        />
+        <input
+          type="password"
+          placeholder="Senha"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+          className="px-4 py-3 rounded-lg border border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-[#1e293b] bg-[#f1f5f9]"
+        />
+        {error && <div className="text-red-500 text-center text-sm">{error}</div>}
+        <button
+          type="submit"
+          className="bg-[#2563eb] hover:bg-[#1e40af] text-white font-bold py-3 rounded-lg transition-all duration-200 shadow-md disabled:opacity-60"
+          disabled={loading}
+        >
           {loading ? 'Entrando...' : 'Entrar'}
-        </Button>
+        </button>
       </form>
+      <style>{`
+        .animate-fade-in {
+          animation: fadeIn 1s ease;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 };

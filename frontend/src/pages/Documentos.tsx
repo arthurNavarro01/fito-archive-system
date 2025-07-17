@@ -1,260 +1,87 @@
 
-import React, { useState, useMemo } from 'react';
-import {
-  Box,
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Chip,
-  IconButton,
-  Tooltip,
-  Grid,
-} from '@mui/material';
-import {
-  Search,
-  FilterList,
-  Visibility,
-  Edit,
-  Delete,
-} from '@mui/icons-material';
-import { dadosIniciais } from '../services/mockData';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { Setor, TipoDocumento, StatusDocumento } from '../types';
+import React from 'react';
+import { FaFilePdf, FaTrash, FaEdit, FaSearch } from 'react-icons/fa';
+
+// Exemplo de dados mockados (substitua por dados reais depois)
+const documentos = [
+  { id: 1, nome: 'Contrato 2024', setor: 'TI', tipo: 'PDF', status: 'Arquivado', data: '2024-01-10' },
+  { id: 2, nome: 'Relatório RH', setor: 'RH', tipo: 'PDF', status: 'Descarte Pendente', data: '2024-02-15' },
+  { id: 3, nome: 'Fatura 123', setor: 'Financeiro', tipo: 'PDF', status: 'Arquivado', data: '2024-03-01' },
+  { id: 4, nome: 'Processo 456', setor: 'Jurídico', tipo: 'PDF', status: 'Consultado', data: '2024-03-20' },
+];
+
+const statusColor = {
+  'Arquivado': 'bg-green-100 text-green-700',
+  'Descarte Pendente': 'bg-yellow-100 text-yellow-800',
+  'Consultado': 'bg-blue-100 text-blue-700',
+  'Descartado': 'bg-gray-200 text-gray-600',
+};
 
 const Documentos: React.FC = () => {
-  const { documentos } = useMemo(() => dadosIniciais(), []);
-  
-  // Estados para filtros e paginação
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterSetor, setFilterSetor] = useState<string>('');
-  const [filterTipo, setFilterTipo] = useState<string>('');
-  const [filterStatus, setFilterStatus] = useState<string>('');
-
-  // Aplicar filtros
-  const documentosFiltrados = useMemo(() => {
-    return documentos.filter(doc => {
-      const matchSearch = doc.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.descricao.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.responsavel.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchSetor = !filterSetor || doc.setor === filterSetor;
-      const matchTipo = !filterTipo || doc.tipo === filterTipo;
-      const matchStatus = !filterStatus || doc.status === filterStatus;
-      
-      return matchSearch && matchSetor && matchTipo && matchStatus;
-    });
-  }, [documentos, searchTerm, filterSetor, filterTipo, filterStatus]);
-
-  // Paginação
-  const documentosPaginados = useMemo(() => {
-    const startIndex = page * rowsPerPage;
-    return documentosFiltrados.slice(startIndex, startIndex + rowsPerPage);
-  }, [documentosFiltrados, page, rowsPerPage]);
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const getStatusColor = (status: StatusDocumento) => {
-    switch (status) {
-      case StatusDocumento.ARQUIVADO:
-        return 'success';
-      case StatusDocumento.DESCARTE_PENDENTE:
-        return 'error';
-      case StatusDocumento.DESCARTADO:
-        return 'default';
-      case StatusDocumento.CONSULTADO:
-        return 'info';
-      default:
-        return 'default';
-    }
-  };
-
   return (
-    <Box>
-      {/* Header */}
-      <Box mb={4}>
-        <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
-          Documentos
-        </Typography>
-        <Typography variant="body1" color="textSecondary">
-          Gerencie todos os documentos do arquivo morto
-        </Typography>
-      </Box>
-
-      {/* Filtros */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Box
-          display="grid"
-          gridTemplateColumns={{ xs: "1fr", md: "3fr 2fr 2fr 2fr 3fr" }}
-          gap={3}
-          alignItems="center"
-        >
-          <TextField
-            fullWidth
-            placeholder="Buscar documentos..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: <Search sx={{ mr: 1, color: 'action.active' }} />,
-            }}
+    <div className="w-full">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+        <h2 className="text-2xl font-bold text-[#2563eb]">Documentos</h2>
+        <div className="flex gap-2 items-center">
+          <input
+            type="text"
+            placeholder="Buscar documento..."
+            className="px-4 py-2 rounded-lg border border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb] bg-[#f1f5f9] text-[#1e293b]"
           />
-          
-          <FormControl fullWidth>
-            <InputLabel>Setor</InputLabel>
-            <Select
-              value={filterSetor}
-              onChange={(e) => setFilterSetor(e.target.value)}
-              label="Setor"
-            >
-              <MenuItem value="">Todos</MenuItem>
-              {Object.values(Setor).map((setor) => (
-                <MenuItem key={setor} value={setor}>
-                  {setor}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth>
-            <InputLabel>Tipo</InputLabel>
-            <Select
-              value={filterTipo}
-              onChange={(e) => setFilterTipo(e.target.value)}
-              label="Tipo"
-            >
-              <MenuItem value="">Todos</MenuItem>
-              {Object.values(TipoDocumento).map((tipo) => (
-                <MenuItem key={tipo} value={tipo}>
-                  {tipo}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth>
-            <InputLabel>Status</InputLabel>
-            <Select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              label="Status"
-            >
-              <MenuItem value="">Todos</MenuItem>
-              {Object.values(StatusDocumento).map((status) => (
-                <MenuItem key={status} value={status}>
-                  {status}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <Box display="flex" alignItems="center" gap={1}>
-            <FilterList color="action" />
-            <Typography variant="body2" color="textSecondary">
-              {documentosFiltrados.length} de {documentos.length} documentos
-            </Typography>
-          </Box>
-        </Box>
-      </Paper>
-
-      {/* Tabela */}
-      <Paper>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Número</TableCell>
-                <TableCell>Tipo</TableCell>
-                <TableCell>Setor</TableCell>
-                <TableCell>Responsável</TableCell>
-                <TableCell>Data Arquivo</TableCell>
-                <TableCell>Data Descarte</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="center">Ações</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {documentosPaginados.map((documento) => (
-                <TableRow key={documento.id} hover>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight="medium">
-                      {documento.numero}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{documento.tipo}</TableCell>
-                  <TableCell>{documento.setor}</TableCell>
-                  <TableCell>{documento.responsavel}</TableCell>
-                  <TableCell>
-                    {format(documento.dataArquivamento, 'dd/MM/yyyy', { locale: ptBR })}
-                  </TableCell>
-                  <TableCell>
-                    {format(documento.dataDescarte, 'dd/MM/yyyy', { locale: ptBR })}
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={documento.status}
-                      size="small"
-                      color={getStatusColor(documento.status) as any}
-                      variant="outlined"
-                    />
-                  </TableCell>
-                  <TableCell align="center">
-                    <Tooltip title="Visualizar">
-                      <IconButton size="small">
-                        <Visibility />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Editar">
-                      <IconButton size="small">
-                        <Edit />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Excluir">
-                      <IconButton size="small" color="error">
-                        <Delete />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          component="div"
-          count={documentosFiltrados.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="Linhas por página:"
-          labelDisplayedRows={({ from, to, count }) => 
-            `${from}-${to} de ${count !== -1 ? count : `mais de ${to}`}`
-          }
-        />
-      </Paper>
-    </Box>
+          <button className="bg-[#2563eb] hover:bg-[#1e40af] text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-md">
+            <FaSearch /> Buscar
+          </button>
+        </div>
+      </div>
+      {/* Tabela para desktop */}
+      <div className="hidden md:block">
+        <table className="w-full rounded-2xl overflow-hidden shadow-lg">
+          <thead className="bg-[#2563eb] text-white">
+            <tr>
+              <th className="py-3 px-4 text-left">Nome</th>
+              <th className="py-3 px-4 text-left">Setor</th>
+              <th className="py-3 px-4 text-left">Tipo</th>
+              <th className="py-3 px-4 text-left">Status</th>
+              <th className="py-3 px-4 text-left">Data</th>
+              <th className="py-3 px-4 text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {documentos.map((doc, idx) => (
+              <tr key={doc.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-[#f1f5f9] hover:bg-[#e0e7ef]'}>
+                <td className="py-3 px-4 font-medium flex items-center gap-2"><FaFilePdf className="text-[#2563eb]" /> {doc.nome}</td>
+                <td className="py-3 px-4">{doc.setor}</td>
+                <td className="py-3 px-4">{doc.tipo}</td>
+                <td className="py-3 px-4">
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColor[doc.status as keyof typeof statusColor]}`}>{doc.status}</span>
+                </td>
+                <td className="py-3 px-4">{doc.data}</td>
+                <td className="py-3 px-4 flex gap-2 justify-center">
+                  <button className="p-2 rounded-full hover:bg-[#e0e7ef] transition"><FaEdit className="text-[#2563eb]" /></button>
+                  <button className="p-2 rounded-full hover:bg-red-100 transition"><FaTrash className="text-red-500" /></button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {/* Cards para mobile */}
+      <div className="md:hidden flex flex-col gap-4">
+        {documentos.map(doc => (
+          <div key={doc.id} className="bg-white rounded-2xl shadow p-4 flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-[#2563eb] font-bold"><FaFilePdf /> {doc.nome}</div>
+            <div className="flex gap-2 text-sm text-[#64748b]">
+              <span>{doc.setor}</span> | <span>{doc.tipo}</span> | <span>{doc.data}</span>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColor[doc.status as keyof typeof statusColor]}`}>{doc.status}</span>
+              <button className="p-2 rounded-full hover:bg-[#e0e7ef] transition"><FaEdit className="text-[#2563eb]" /></button>
+              <button className="p-2 rounded-full hover:bg-red-100 transition"><FaTrash className="text-red-500" /></button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 

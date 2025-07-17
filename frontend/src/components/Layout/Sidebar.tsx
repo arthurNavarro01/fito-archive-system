@@ -1,133 +1,35 @@
 
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Toolbar,
-  Divider,
-  Box,
-  Typography,
-} from '@mui/material';
-import {
-  Dashboard,
-  Description,
-  Archive,
-  Add,
-  Inventory,
-} from '@mui/icons-material';
+import { Link, useLocation } from 'react-router-dom';
+import { FaHome, FaFileAlt, FaBox, FaPlus, FaArchive } from 'react-icons/fa';
 
-const DRAWER_WIDTH = 240;
-
-interface SidebarProps {
-  open: boolean;
-  onClose: () => void;
-}
-
-const menuItems = [
-  { text: 'Dashboard', icon: Dashboard, path: '/dashboard' },
-  { text: 'Documentos', icon: Description, path: '/documentos' },
-  { text: 'Caixas', icon: Archive, path: '/caixas' },
-  { text: 'Novo Documento', icon: Add, path: '/novo-documento' },
-  { text: 'Nova Caixa', icon: Inventory, path: '/nova-caixa' },
+const sidebarLinks = [
+  { to: '/dashboard', label: 'Dashboard', icon: <FaHome /> },
+  { to: '/documentos', label: 'Documentos', icon: <FaFileAlt /> },
+  { to: '/caixas', label: 'Caixas', icon: <FaBox /> },
+  { to: '/novo-documento', label: 'Novo Documento', icon: <FaPlus /> },
+  { to: '/nova-caixa', label: 'Nova Caixa', icon: <FaArchive /> },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
-  const navigate = useNavigate();
+const Sidebar: React.FC = () => {
   const location = useLocation();
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
-    onClose(); // Fecha o drawer no mobile após navegação
-  };
-
-  const drawerContent = (
-    <Box>
-      <Toolbar>
-        <Typography variant="h6" noWrap component="div" color="primary" fontWeight="bold">
-          FITO
-        </Typography>
-      </Toolbar>
-      <Divider />
-      <List>
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
-          
-          return (
-            <ListItem key={item.text} disablePadding>
-              <ListItemButton
-                onClick={() => handleNavigation(item.path)}
-                selected={isActive}
-                sx={{
-                  '&.Mui-selected': {
-                    backgroundColor: 'primary.main',
-                    color: 'primary.contrastText',
-                    '&:hover': {
-                      backgroundColor: 'primary.dark',
-                    },
-                    '& .MuiListItemIcon-root': {
-                      color: 'primary.contrastText',
-                    },
-                  },
-                }}
-              >
-                <ListItemIcon>
-                  <Icon />
-                </ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItemButton>
-            </ListItem>
-          );
-        })}
-      </List>
-    </Box>
-  );
-
   return (
-    <>
-      {/* Desktop drawer */}
-      <Drawer
-        variant="persistent"
-        anchor="left"
-        open={open}
-        sx={{
-          display: { xs: 'none', sm: 'block' },
-          width: DRAWER_WIDTH,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: DRAWER_WIDTH,
-            boxSizing: 'border-box',
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-
-      {/* Mobile drawer */}
-      <Drawer
-        variant="temporary"
-        anchor="left"
-        open={open}
-        onClose={onClose}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile
-        }}
-        sx={{
-          display: { xs: 'block', sm: 'none' },
-          '& .MuiDrawer-paper': {
-            width: DRAWER_WIDTH,
-            boxSizing: 'border-box',
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-    </>
+    <aside className="flex flex-col w-64 bg-[#1e293b] text-white py-6 px-4 shadow-lg h-screen fixed z-30">
+      <div className="text-2xl font-bold mb-10 tracking-tight text-[#60a5fa]">FITO</div>
+      <nav className="flex-1 space-y-2">
+        {sidebarLinks.map(link => (
+          <Link
+            key={link.to}
+            to={link.to}
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all hover:bg-[#2563eb] ${location.pathname.startsWith(link.to) ? 'bg-[#2563eb]' : ''}`}
+          >
+            {link.icon}
+            <span className="font-medium">{link.label}</span>
+          </Link>
+        ))}
+      </nav>
+    </aside>
   );
 };
 

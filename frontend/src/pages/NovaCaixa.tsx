@@ -1,357 +1,102 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  Typography,
-  Paper,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Button,
-  Card,
-  CardContent,
-  Divider,
-} from '@mui/material';
-import {
-  Save,
-  Cancel,
-  Archive,
-  LocationOn,
-} from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import { Setor, StatusCaixa } from '../types';
-
-interface FormData {
-  numero: string;
-  setor: Setor | '';
-  responsavel: string;
-  dataAbertura: string;
-  capacidade: number;
-  observacoes: string;
-  // Localização
-  rua: string;
-  estante: string;
-  andar: number;
-  posicao: string;
-}
 
 const NovaCaixa: React.FC = () => {
-  const navigate = useNavigate();
-
-  const [formData, setFormData] = useState<FormData>({
+  const [form, setForm] = useState({
     numero: '',
     setor: '',
-    responsavel: '',
-    dataAbertura: new Date().toISOString().split('T')[0],
-    capacidade: 100,
-    observacoes: '',
-    rua: '',
-    estante: '',
-    andar: 1,
-    posicao: '',
+    capacidade: '',
+    status: '',
   });
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const [errors, setErrors] = useState<any>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleChange = (field: keyof FormData) => (
-    event: any
-  ) => {
-    const value = event.target.value;
-    setFormData(prev => ({ 
-      ...prev, 
-      [field]: field === 'capacidade' || field === 'andar' ? Number(value) : value 
-    }));
-    
-    // Limpar erro do campo quando ele for preenchido
-    if (errors[field] && value) {
-      setErrors((prev: any) => ({ ...prev, [field]: undefined }));
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: any = {};
-
-    if (!formData.numero.trim()) newErrors.numero = 'Número é obrigatório';
-    if (!formData.setor) newErrors.setor = 'Setor é obrigatório';
-    if (!formData.responsavel.trim()) newErrors.responsavel = 'Responsável é obrigatório';
-    if (!formData.dataAbertura) newErrors.dataAbertura = 'Data de abertura é obrigatória';
-    if (!formData.capacidade || Number(formData.capacidade) <= 0) newErrors.capacidade = 'Capacidade deve ser maior que zero';
-    if (!formData.rua.trim()) newErrors.rua = 'Rua é obrigatória';
-    if (!formData.estante.trim()) newErrors.estante = 'Estante é obrigatória';
-    if (!formData.andar || Number(formData.andar) <= 0) newErrors.andar = 'Andar deve ser maior que zero';
-    if (!formData.posicao.trim()) newErrors.posicao = 'Posição é obrigatória';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      // Simular envio para API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      console.log('Caixa criada:', {
-        ...formData,
-        id: Date.now().toString(),
-        status: StatusCaixa.DISPONIVEL,
-        documentosCount: 0,
-        localizacao: {
-          rua: formData.rua,
-          estante: formData.estante,
-          andar: formData.andar,
-          posicao: formData.posicao,
-        },
-      });
-
-      // Redirecionar para lista de caixas
-      navigate('/caixas');
-    } catch (error) {
-      console.error('Erro ao criar caixa:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleCancel = () => {
-    navigate('/caixas');
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setSuccess('');
+    setError('');
+    setTimeout(() => {
+      setLoading(false);
+      setSuccess('Caixa cadastrada com sucesso!');
+      setForm({ numero: '', setor: '', capacidade: '', status: '' });
+    }, 1200);
   };
 
   return (
-    <Box>
-      {/* Header */}
-      <Box mb={4}>
-        <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
-          Nova Caixa de Arquivo
-        </Typography>
-        <Typography variant="body1" color="textSecondary">
-          Cadastre uma nova caixa para armazenar documentos
-        </Typography>
-      </Box>
-
-      <form onSubmit={handleSubmit}>
-        <Box display="grid" gridTemplateColumns={{ xs: "1fr", md: "2fr 1fr" }} gap={3}>
-          {/* Formulário Principal */}
-          <Box>
-            <Paper sx={{ p: 3, mb: 3 }}>
-              <Box display="flex" alignItems="center" gap={2} mb={3}>
-                <Archive color="primary" />
-                <Typography variant="h6" fontWeight={600}>
-                  Dados da Caixa
-                </Typography>
-              </Box>
-
-              <Box display="grid" gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }} gap={3}>
-                <TextField
-                  fullWidth
-                  label="Número da Caixa"
-                  value={formData.numero}
-                  onChange={handleChange('numero')}
-                  error={!!errors.numero}
-                  helperText={errors.numero}
-                  placeholder="Ex: CX-0001"
-                />
-
-                <FormControl fullWidth error={!!errors.setor}>
-                  <InputLabel>Setor</InputLabel>
-                  <Select
-                    value={formData.setor}
-                    onChange={handleChange('setor')}
-                    label="Setor"
-                  >
-                    {Object.values(Setor).map((setor) => (
-                      <MenuItem key={setor} value={setor}>
-                        {setor}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  {errors.setor && (
-                    <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
-                      {errors.setor}
-                    </Typography>
-                  )}
-                </FormControl>
-
-                <TextField
-                  fullWidth
-                  label="Responsável"
-                  value={formData.responsavel}
-                  onChange={handleChange('responsavel')}
-                  error={!!errors.responsavel}
-                  helperText={errors.responsavel}
-                  placeholder="Nome do responsável"
-                />
-
-                <TextField
-                  fullWidth
-                  label="Data de Abertura"
-                  type="date"
-                  value={formData.dataAbertura}
-                  onChange={handleChange('dataAbertura')}
-                  error={!!errors.dataAbertura}
-                  helperText={errors.dataAbertura}
-                  InputLabelProps={{ shrink: true }}
-                />
-
-                <TextField
-                  fullWidth
-                  label="Capacidade"
-                  type="number"
-                  value={formData.capacidade}
-                  onChange={handleChange('capacidade')}
-                  error={!!errors.capacidade}
-                  helperText={errors.capacidade || 'Número máximo de documentos'}
-                  inputProps={{ min: 1, max: 1000 }}
-                />
-
-                <Box gridColumn={{ xs: "1", md: "1 / -1" }}>
-                  <TextField
-                    fullWidth
-                    label="Observações (opcional)"
-                    multiline
-                    rows={3}
-                    value={formData.observacoes}
-                    onChange={handleChange('observacoes')}
-                    placeholder="Observações adicionais sobre a caixa"
-                  />
-                </Box>
-              </Box>
-            </Paper>
-
-            {/* Localização */}
-            <Paper sx={{ p: 3 }}>
-              <Box display="flex" alignItems="center" gap={2} mb={3}>
-                <LocationOn color="primary" />
-                <Typography variant="h6" fontWeight={600}>
-                  Localização Física
-                </Typography>
-              </Box>
-
-              <Box display="grid" gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }} gap={3}>
-                <TextField
-                  fullWidth
-                  label="Rua"
-                  value={formData.rua}
-                  onChange={handleChange('rua')}
-                  error={!!errors.rua}
-                  helperText={errors.rua}
-                  placeholder="Ex: Rua A"
-                />
-
-                <TextField
-                  fullWidth
-                  label="Estante"
-                  value={formData.estante}
-                  onChange={handleChange('estante')}
-                  error={!!errors.estante}
-                  helperText={errors.estante}
-                  placeholder="Ex: EST-01"
-                />
-
-                <TextField
-                  fullWidth
-                  label="Andar"
-                  type="number"
-                  value={formData.andar}
-                  onChange={handleChange('andar')}
-                  error={!!errors.andar}
-                  helperText={errors.andar}
-                  inputProps={{ min: 1, max: 10 }}
-                />
-
-                <TextField
-                  fullWidth
-                  label="Posição"
-                  value={formData.posicao}
-                  onChange={handleChange('posicao')}
-                  error={!!errors.posicao}
-                  helperText={errors.posicao}
-                  placeholder="Ex: P01"
-                />
-              </Box>
-            </Paper>
-          </Box>
-
-          {/* Sidebar */}
-          <Box>
-            {/* Preview da Caixa */}
-            <Card sx={{ mb: 3 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom fontWeight={600}>
-                  Preview da Caixa
-                </Typography>
-                <Divider sx={{ my: 2 }} />
-                
-                <Box mb={2}>
-                  <Typography variant="body2" color="textSecondary">
-                    <strong>Número:</strong> {formData.numero || 'Não informado'}
-                  </Typography>
-                </Box>
-                
-                <Box mb={2}>
-                  <Typography variant="body2" color="textSecondary">
-                    <strong>Setor:</strong> {formData.setor || 'Não informado'}
-                  </Typography>
-                </Box>
-                
-                <Box mb={2}>
-                  <Typography variant="body2" color="textSecondary">
-                    <strong>Capacidade:</strong> {formData.capacidade} documentos
-                  </Typography>
-                </Box>
-                
-                <Box mb={2}>
-                  <Typography variant="body2" color="textSecondary">
-                    <strong>Localização:</strong>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" sx={{ ml: 1 }}>
-                    {formData.rua && formData.estante 
-                      ? `${formData.rua}, ${formData.estante}, Andar ${formData.andar}, ${formData.posicao}`
-                      : 'Não informada'
-                    }
-                  </Typography>
-                </Box>
-              </CardContent>
-            </Card>
-
-            {/* Botões de Ação */}
-            <Paper sx={{ p: 3 }}>
-              <Box display="grid" gap={2}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  fullWidth
-                  size="large"
-                  startIcon={<Save />}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Salvando...' : 'Salvar Caixa'}
-                </Button>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  size="large"
-                  startIcon={<Cancel />}
-                  onClick={handleCancel}
-                  disabled={isSubmitting}
-                >
-                  Cancelar
-                </Button>
-              </Box>
-            </Paper>
-          </Box>
-        </Box>
+    <div className="flex justify-center items-center min-h-[70vh]">
+      <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-xl flex flex-col gap-6">
+        <h2 className="text-2xl font-bold text-[#2563eb] mb-2">Nova Caixa</h2>
+        {success && <div className="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-center">{success}</div>}
+        {error && <div className="bg-red-100 text-red-700 px-4 py-2 rounded-lg text-center">{error}</div>}
+        <div className="flex flex-col gap-2">
+          <label className="font-semibold text-[#1e293b]">Número</label>
+          <input
+            name="numero"
+            value={form.numero}
+            onChange={handleChange}
+            required
+            className="px-4 py-3 rounded-lg border border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb] bg-[#f1f5f9] text-[#1e293b]"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-semibold text-[#1e293b]">Setor</label>
+          <select
+            name="setor"
+            value={form.setor}
+            onChange={handleChange}
+            required
+            className="px-4 py-3 rounded-lg border border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb] bg-[#f1f5f9] text-[#1e293b]"
+          >
+            <option value="">Selecione</option>
+            <option value="TI">TI</option>
+            <option value="RH">RH</option>
+            <option value="Financeiro">Financeiro</option>
+            <option value="Jurídico">Jurídico</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-semibold text-[#1e293b]">Capacidade</label>
+          <input
+            name="capacidade"
+            type="number"
+            min="1"
+            value={form.capacidade}
+            onChange={handleChange}
+            required
+            className="px-4 py-3 rounded-lg border border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb] bg-[#f1f5f9] text-[#1e293b]"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-semibold text-[#1e293b]">Status</label>
+          <select
+            name="status"
+            value={form.status}
+            onChange={handleChange}
+            required
+            className="px-4 py-3 rounded-lg border border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb] bg-[#f1f5f9] text-[#1e293b]"
+          >
+            <option value="">Selecione</option>
+            <option value="Disponível">Disponível</option>
+            <option value="Cheia">Cheia</option>
+            <option value="Indisponível">Indisponível</option>
+            <option value="Em Manutenção">Em Manutenção</option>
+          </select>
+        </div>
+        <button
+          type="submit"
+          className="bg-[#2563eb] hover:bg-[#1e40af] text-white font-bold py-3 rounded-lg transition-all duration-200 shadow-md disabled:opacity-60"
+          disabled={loading}
+        >
+          {loading ? 'Salvando...' : 'Salvar Caixa'}
+        </button>
       </form>
-    </Box>
+    </div>
   );
 };
 

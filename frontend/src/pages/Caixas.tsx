@@ -1,279 +1,93 @@
 
-import React, { useState, useMemo } from 'react';
-import {
-  Box,
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Chip,
-  IconButton,
-  Tooltip,
-  LinearProgress,
-} from '@mui/material';
-import {
-  Search,
-  FilterList,
-  Visibility,
-  Edit,
-  Delete,
-  LocationOn,
-} from '@mui/icons-material';
-import { dadosIniciais } from '../services/mockData';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { Setor, StatusCaixa } from '../types';
+import React from 'react';
+import { FaBox, FaTrash, FaEdit, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
+
+// Exemplo de dados mockados (substitua por dados reais depois)
+const caixas = [
+  { id: 1, numero: 'CX-001', setor: 'TI', status: 'Disponível', capacidade: 50, ocupada: 32 },
+  { id: 2, numero: 'CX-002', setor: 'RH', status: 'Cheia', capacidade: 50, ocupada: 50 },
+  { id: 3, numero: 'CX-003', setor: 'Financeiro', status: 'Em Manutenção', capacidade: 50, ocupada: 10 },
+  { id: 4, numero: 'CX-004', setor: 'Jurídico', status: 'Indisponível', capacidade: 50, ocupada: 0 },
+];
+
+const statusColor = {
+  'Disponível': 'bg-green-100 text-green-700',
+  'Cheia': 'bg-yellow-100 text-yellow-800',
+  'Indisponível': 'bg-gray-200 text-gray-600',
+  'Em Manutenção': 'bg-blue-100 text-blue-700',
+};
+const statusIcon = {
+  'Disponível': <FaCheckCircle className="text-green-500" />,
+  'Cheia': <FaExclamationCircle className="text-yellow-500" />,
+  'Indisponível': <FaExclamationCircle className="text-gray-500" />,
+  'Em Manutenção': <FaExclamationCircle className="text-blue-500" />,
+};
 
 const Caixas: React.FC = () => {
-  const { caixas } = useMemo(() => dadosIniciais(), []);
-  
-  // Estados para filtros e paginação
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterSetor, setFilterSetor] = useState<string>('');
-  const [filterStatus, setFilterStatus] = useState<string>('');
-
-  // Aplicar filtros
-  const caixasFiltradas = useMemo(() => {
-    return caixas.filter(caixa => {
-      const matchSearch = caixa.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         caixa.responsavel.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchSetor = !filterSetor || caixa.setor === filterSetor;
-      const matchStatus = !filterStatus || caixa.status === filterStatus;
-      
-      return matchSearch && matchSetor && matchStatus;
-    });
-  }, [caixas, searchTerm, filterSetor, filterStatus]);
-
-  // Paginação
-  const caixasPaginadas = useMemo(() => {
-    const startIndex = page * rowsPerPage;
-    return caixasFiltradas.slice(startIndex, startIndex + rowsPerPage);
-  }, [caixasFiltradas, page, rowsPerPage]);
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const getStatusColor = (status: StatusCaixa) => {
-    switch (status) {
-      case StatusCaixa.DISPONIVEL:
-        return 'success';
-      case StatusCaixa.INDISPONIVEL:
-        return 'error';
-      case StatusCaixa.CHEIA:
-        return 'warning';
-      case StatusCaixa.EM_MANUTENCAO:
-        return 'info';
-      default:
-        return 'default';
-    }
-  };
-
-  const getCapacidadePercentual = (documentos: number, capacidade: number) => {
-    return Math.min((documentos / capacidade) * 100, 100);
-  };
-
-  const getCapacidadeColor = (percentual: number) => {
-    if (percentual >= 90) return 'error';
-    if (percentual >= 70) return 'warning';
-    return 'success';
-  };
-
   return (
-    <Box>
-      {/* Header */}
-      <Box mb={4}>
-        <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
-          Caixas de Arquivo
-        </Typography>
-        <Typography variant="body1" color="textSecondary">
-          Gerencie todas as caixas do arquivo morto e suas localizações
-        </Typography>
-      </Box>
-
-      {/* Filtros */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Box
-          display="grid"
-          gridTemplateColumns={{ xs: "1fr", md: "2fr 1fr 1fr auto" }}
-          gap={3}
-          alignItems="center"
-        >
-          <TextField
-            fullWidth
-            placeholder="Buscar caixas..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: <Search sx={{ mr: 1, color: 'action.active' }} />,
-            }}
+    <div className="w-full">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+        <h2 className="text-2xl font-bold text-[#2563eb]">Caixas</h2>
+        <div className="flex gap-2 items-center">
+          <input
+            type="text"
+            placeholder="Buscar caixa..."
+            className="px-4 py-2 rounded-lg border border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb] bg-[#f1f5f9] text-[#1e293b]"
           />
-          
-          <FormControl fullWidth>
-            <InputLabel>Setor</InputLabel>
-            <Select
-              value={filterSetor}
-              onChange={(e) => setFilterSetor(e.target.value)}
-              label="Setor"
-            >
-              <MenuItem value="">Todos</MenuItem>
-              {Object.values(Setor).map((setor) => (
-                <MenuItem key={setor} value={setor}>
-                  {setor}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth>
-            <InputLabel>Status</InputLabel>
-            <Select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              label="Status"
-            >
-              <MenuItem value="">Todos</MenuItem>
-              {Object.values(StatusCaixa).map((status) => (
-                <MenuItem key={status} value={status}>
-                  {status}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <Box display="flex" alignItems="center" gap={1}>
-            <FilterList color="action" />
-            <Typography variant="body2" color="textSecondary">
-              {caixasFiltradas.length} de {caixas.length} caixas
-            </Typography>
-          </Box>
-        </Box>
-      </Paper>
-
-      {/* Tabela */}
-      <Paper>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Número</TableCell>
-                <TableCell>Setor</TableCell>
-                <TableCell>Localização</TableCell>
-                <TableCell>Responsável</TableCell>
-                <TableCell>Data Abertura</TableCell>
-                <TableCell>Capacidade</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="center">Ações</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {caixasPaginadas.map((caixa) => {
-                const capacidadePercentual = getCapacidadePercentual(caixa.documentosCount, caixa.capacidade);
-                
-                return (
-                  <TableRow key={caixa.id} hover>
-                    <TableCell>
-                      <Typography variant="body2" fontWeight="medium">
-                        {caixa.numero}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>{caixa.setor}</TableCell>
-                    <TableCell>
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <LocationOn fontSize="small" color="action" />
-                        <Typography variant="body2">
-                          {caixa.localizacao.rua}, {caixa.localizacao.estante}, 
-                          Andar {caixa.localizacao.andar}, {caixa.localizacao.posicao}
-                        </Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell>{caixa.responsavel}</TableCell>
-                    <TableCell>
-                      {format(caixa.dataAbertura, 'dd/MM/yyyy', { locale: ptBR })}
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ minWidth: 120 }}>
-                        <Box display="flex" justifyContent="space-between" mb={0.5}>
-                          <Typography variant="body2">
-                            {caixa.documentosCount}/{caixa.capacidade}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            {Math.round(capacidadePercentual)}%
-                          </Typography>
-                        </Box>
-                        <LinearProgress
-                          variant="determinate"
-                          value={capacidadePercentual}
-                          color={getCapacidadeColor(capacidadePercentual) as any}
-                          sx={{ height: 6, borderRadius: 3 }}
-                        />
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={caixa.status}
-                        size="small"
-                        color={getStatusColor(caixa.status) as any}
-                        variant="outlined"
-                      />
-                    </TableCell>
-                    <TableCell align="center">
-                      <Tooltip title="Visualizar">
-                        <IconButton size="small">
-                          <Visibility />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Editar">
-                        <IconButton size="small">
-                          <Edit />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Excluir">
-                        <IconButton size="small" color="error">
-                          <Delete />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          component="div"
-          count={caixasFiltradas.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="Linhas por página:"
-          labelDisplayedRows={({ from, to, count }) => 
-            `${from}-${to} de ${count !== -1 ? count : `mais de ${to}`}`
-          }
-        />
-      </Paper>
-    </Box>
+          <button className="bg-[#2563eb] hover:bg-[#1e40af] text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-md">
+            <FaBox /> Buscar
+          </button>
+        </div>
+      </div>
+      {/* Tabela para desktop */}
+      <div className="hidden md:block">
+        <table className="w-full rounded-2xl overflow-hidden shadow-lg">
+          <thead className="bg-[#2563eb] text-white">
+            <tr>
+              <th className="py-3 px-4 text-left">Número</th>
+              <th className="py-3 px-4 text-left">Setor</th>
+              <th className="py-3 px-4 text-left">Status</th>
+              <th className="py-3 px-4 text-left">Capacidade</th>
+              <th className="py-3 px-4 text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {caixas.map((caixa, idx) => (
+              <tr key={caixa.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-[#f1f5f9] hover:bg-[#e0e7ef]'}>
+                <td className="py-3 px-4 font-medium flex items-center gap-2"><FaBox className="text-[#2563eb]" /> {caixa.numero}</td>
+                <td className="py-3 px-4">{caixa.setor}</td>
+                <td className="py-3 px-4 flex items-center gap-2">
+                  {statusIcon[caixa.status as keyof typeof statusIcon]}
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColor[caixa.status as keyof typeof statusColor]}`}>{caixa.status}</span>
+                </td>
+                <td className="py-3 px-4">{caixa.ocupada} / {caixa.capacidade}</td>
+                <td className="py-3 px-4 flex gap-2 justify-center">
+                  <button className="p-2 rounded-full hover:bg-[#e0e7ef] transition"><FaEdit className="text-[#2563eb]" /></button>
+                  <button className="p-2 rounded-full hover:bg-red-100 transition"><FaTrash className="text-red-500" /></button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {/* Cards para mobile */}
+      <div className="md:hidden flex flex-col gap-4">
+        {caixas.map(caixa => (
+          <div key={caixa.id} className="bg-white rounded-2xl shadow p-4 flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-[#2563eb] font-bold"><FaBox /> {caixa.numero}</div>
+            <div className="flex gap-2 text-sm text-[#64748b]">
+              <span>{caixa.setor}</span> | <span>{caixa.ocupada} / {caixa.capacidade}</span>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              {statusIcon[caixa.status as keyof typeof statusIcon]}
+              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColor[caixa.status as keyof typeof statusColor]}`}>{caixa.status}</span>
+              <button className="p-2 rounded-full hover:bg-[#e0e7ef] transition"><FaEdit className="text-[#2563eb]" /></button>
+              <button className="p-2 rounded-full hover:bg-red-100 transition"><FaTrash className="text-red-500" /></button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 

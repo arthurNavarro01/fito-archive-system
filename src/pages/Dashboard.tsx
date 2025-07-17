@@ -1,7 +1,6 @@
 
 import React, { useMemo } from 'react';
 import {
-  Typography,
   Box,
   Paper,
   Table,

@@ -1,77 +1,42 @@
 
 import React from 'react';
-import {
-  AppBar as MuiAppBar,
-  Toolbar,
-  Typography,
-  IconButton,
-  Box,
-  Badge,
-} from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Brightness4,
-  Brightness7,
-  Notifications,
-  AccountCircle,
-} from '@mui/icons-material';
-import { useThemeContext } from '../../contexts/ThemeContext';
+import { FaBell, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
-interface AppBarProps {
-  open: boolean;
-  onDrawerToggle: () => void;
-  alertasCount?: number;
-}
+const AppBar: React.FC = () => {
+  const { user, logout, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
-const AppBar: React.FC<AppBarProps> = ({ open, onDrawerToggle, alertasCount = 0 }) => {
-  const { isDarkMode, toggleTheme } = useThemeContext();
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
-    <MuiAppBar 
-      position="fixed" 
-      sx={{ 
-        zIndex: (theme) => theme.zIndex.drawer + 1,
-        transition: (theme) => theme.transitions.create(['margin', 'width'], {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.leavingScreen,
-        }),
-      }}
-    >
-      <Toolbar>
-        <IconButton
-          color="inherit"
-          aria-label="toggle drawer"
-          onClick={onDrawerToggle}
-          edge="start"
-          sx={{ mr: 2 }}
-        >
-          <MenuIcon />
-        </IconButton>
-        
-        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          Sistema Arquivo Morto - FITO
-        </Typography>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {/* Toggle tema */}
-          <IconButton color="inherit" onClick={toggleTheme}>
-            {isDarkMode ? <Brightness7 /> : <Brightness4 />}
-          </IconButton>
-
-          {/* Notificações */}
-          <IconButton color="inherit">
-            <Badge badgeContent={alertasCount} color="error">
-              <Notifications />
-            </Badge>
-          </IconButton>
-
-          {/* Perfil do usuário */}
-          <IconButton color="inherit">
-            <AccountCircle />
-          </IconButton>
-        </Box>
-      </Toolbar>
-    </MuiAppBar>
+    <header className="h-16 bg-[#2563eb] flex items-center px-4 sm:px-8 shadow text-white fixed w-full z-20">
+      <h1 className="text-xl font-bold tracking-tight flex-1">Sistema Arquivo Morto - FITO</h1>
+      <div className="flex items-center gap-2">
+        {/* Notificações */}
+        <div className="relative">
+          <FaBell size={20} />
+        </div>
+        {/* Perfil do usuário */}
+        <button className="p-2 rounded hover:bg-[#1e40af] transition" aria-label="Perfil">
+          <FaUserCircle size={22} />
+        </button>
+        {/* Botão de logout */}
+        {isAuthenticated && (
+          <button
+            className="flex items-center gap-1 bg-[#1e293b] hover:bg-[#334155] text-white px-3 py-2 rounded-lg transition text-sm font-semibold"
+            onClick={handleLogout}
+            title="Sair"
+          >
+            <FaSignOutAlt /> Sair
+          </button>
+        )}
+      </div>
+    </header>
   );
 };
 

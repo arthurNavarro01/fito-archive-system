@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { Box, Toolbar } from '@mui/material';
 import AppBar from './AppBar';
 import Sidebar from './Sidebar';
 import { dadosIniciais } from '../../services/mockData';

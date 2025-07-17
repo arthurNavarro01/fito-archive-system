@@ -1,24 +1,6 @@
 
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  Typography,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Chip,
-  Box,
-  Divider,
-} from '@mui/material';
-import {
-  Warning,
-  Error,
-  Info,
-  CheckCircle,
-} from '@mui/icons-material';
+import { FaExclamationTriangle, FaTimesCircle, FaInfoCircle, FaCheckCircle } from 'react-icons/fa';
 import { Alerta, TipoAlerta, PrioridadeAlerta } from '../../types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -28,117 +10,71 @@ interface AlertsListProps {
   maxItems?: number;
 }
 
+const getAlertIcon = (tipo: TipoAlerta) => {
+  switch (tipo) {
+    case TipoAlerta.DESCARTE_VENCIDO:
+      return <FaTimesCircle className="text-red-500 text-xl" />;
+    case TipoAlerta.DESCARTE_PROXIMO:
+      return <FaExclamationTriangle className="text-yellow-500 text-xl" />;
+    case TipoAlerta.CAIXA_CHEIA:
+      return <FaInfoCircle className="text-blue-500 text-xl" />;
+    default:
+      return <FaCheckCircle className="text-green-500 text-xl" />;
+  }
+};
+
+const getPriorityColor = (prioridade: PrioridadeAlerta) => {
+  switch (prioridade) {
+    case PrioridadeAlerta.ALTA:
+      return 'border-red-500 text-red-500';
+    case PrioridadeAlerta.MEDIA:
+      return 'border-yellow-500 text-yellow-500';
+    case PrioridadeAlerta.BAIXA:
+      return 'border-green-500 text-green-500';
+    default:
+      return 'border-gray-400 text-gray-500';
+  }
+};
+
 const AlertsList: React.FC<AlertsListProps> = ({ alertas, maxItems = 5 }) => {
-  const getAlertIcon = (tipo: TipoAlerta) => {
-    switch (tipo) {
-      case TipoAlerta.DESCARTE_VENCIDO:
-        return <Error color="error" />;
-      case TipoAlerta.DESCARTE_PROXIMO:
-        return <Warning color="warning" />;
-      case TipoAlerta.CAIXA_CHEIA:
-        return <Info color="info" />;
-      default:
-        return <CheckCircle color="success" />;
-    }
-  };
-
-  const getPriorityColor = (prioridade: PrioridadeAlerta) => {
-    switch (prioridade) {
-      case PrioridadeAlerta.ALTA:
-        return 'error';
-      case PrioridadeAlerta.MEDIA:
-        return 'warning';
-      case PrioridadeAlerta.BAIXA:
-        return 'success';
-      default:
-        return 'default';
-    }
-  };
-
   const alertasExibir = alertas.slice(0, maxItems);
 
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardHeader
-        title={
-          <Typography variant="h6" component="h3" fontWeight={600}>
-            Alertas Recentes
-          </Typography>
-        }
-        action={
-          <Chip 
-            label={`${alertas.length} total`} 
-            size="small" 
-            color="primary" 
-          />
-        }
-      />
-      <CardContent sx={{ pt: 0 }}>
+    <div className="h-full border rounded-2xl shadow-md bg-white p-4 flex flex-col">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-[#2563eb]">Alertas Recentes</h3>
+        <span className="bg-[#2563eb] text-white text-xs font-bold rounded-full px-3 py-1">{alertas.length} total</span>
+      </div>
+      <div className="flex-1">
         {alertasExibir.length === 0 ? (
-          <Box 
-            display="flex" 
-            alignItems="center" 
-            justifyContent="center" 
-            minHeight={200}
-            flexDirection="column"
-          >
-            <CheckCircle color="success" sx={{ fontSize: 48, mb: 2 }} />
-            <Typography variant="body1" color="textSecondary">
-              Nenhum alerta no momento
-            </Typography>
-          </Box>
+          <div className="flex flex-col items-center justify-center min-h-[200px] gap-2">
+            <FaCheckCircle className="text-green-500 text-4xl mb-2" />
+            <span className="text-gray-400">Nenhum alerta no momento</span>
+          </div>
         ) : (
-          <List dense>
+          <ul className="divide-y divide-gray-200">
             {alertasExibir.map((alerta, index) => (
-              <React.Fragment key={alerta.id}>
-                <ListItem
-                  sx={{
-                    px: 0,
-                    bgcolor: alerta.lido ? 'transparent' : 'action.hover',
-                    borderRadius: 1,
-                    mb: 1,
-                  }}
-                >
-                  <ListItemIcon sx={{ minWidth: 40 }}>
-                    {getAlertIcon(alerta.tipo)}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <Typography 
-                          variant="body2" 
-                          fontWeight={alerta.lido ? 'normal' : 'bold'}
-                          sx={{ flexGrow: 1 }}
-                        >
-                          {alerta.titulo}
-                        </Typography>
-                        <Chip
-                          label={alerta.prioridade}
-                          size="small"
-                          color={getPriorityColor(alerta.prioridade) as any}
-                          variant="outlined"
-                        />
-                      </Box>
-                    }
-                    secondary={
-                      <Box>
-                        <Typography variant="body2" color="textSecondary">
-                          {alerta.mensagem}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          {format(alerta.data, "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                </ListItem>
-                {index < alertasExibir.length - 1 && <Divider />}
-              </React.Fragment>
+              <li
+                key={alerta.id}
+                className={`flex items-start gap-3 py-3 px-1 rounded-lg ${!alerta.lido ? 'bg-blue-50' : ''}`}
+              >
+                <div className="mt-1">{getAlertIcon(alerta.tipo)}</div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-sm font-semibold flex-1 ${!alerta.lido ? 'text-[#2563eb]' : 'text-gray-700'}`}>{alerta.titulo}</span>
+                    <span className={`border px-2 py-0.5 rounded-full text-xs font-bold ${getPriorityColor(alerta.prioridade)}`}>{alerta.prioridade}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">{alerta.mensagem}</div>
+                  <div className="text-[10px] text-gray-400 mt-0.5">
+                    {format(alerta.data, "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}
+                  </div>
+                </div>
+              </li>
             ))}
-          </List>
+          </ul>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

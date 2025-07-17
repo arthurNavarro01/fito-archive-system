@@ -1,13 +1,6 @@
 
 import React from 'react';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  Typography,
-  useTheme,
-} from '@mui/material';
-import {
   BarChart,
   Bar,
   PieChart,
@@ -30,6 +23,17 @@ interface ChartCardProps {
   height?: number;
 }
 
+const COLORS = [
+  '#2563eb', // azul principal
+  '#60a5fa', // azul claro
+  '#22d3ee', // ciano
+  '#facc15', // amarelo
+  '#f87171', // vermelho
+  '#34d399', // verde
+  '#a78bfa', // roxo
+  '#fbbf24', // laranja
+];
+
 const ChartCard: React.FC<ChartCardProps> = ({ 
   title, 
   type, 
@@ -38,20 +42,6 @@ const ChartCard: React.FC<ChartCardProps> = ({
   nameKey = 'setor',
   height = 300
 }) => {
-  const theme = useTheme();
-  
-  // Cores para o gráfico de pizza
-  const COLORS = [
-    theme.palette.primary.main,
-    theme.palette.secondary.main,
-    theme.palette.success.main,
-    theme.palette.warning.main,
-    theme.palette.error.main,
-    theme.palette.info.main,
-    '#9c27b0',
-    '#ff9800',
-  ];
-
   const renderChart = () => {
     if (type === 'bar') {
       return (
@@ -69,14 +59,13 @@ const ChartCard: React.FC<ChartCardProps> = ({
             <Tooltip />
             <Bar 
               dataKey={dataKey} 
-              fill={theme.palette.primary.main}
+              fill="#2563eb"
               radius={[4, 4, 0, 0]}
             />
           </BarChart>
         </ResponsiveContainer>
       );
     }
-
     if (type === 'pie') {
       return (
         <ResponsiveContainer width="100%" height={height}>
@@ -86,7 +75,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
               cx="50%"
               cy="50%"
               outerRadius={100}
-              fill="#8884d8"
+              fill="#2563eb"
               dataKey={dataKey}
               nameKey={nameKey}
               label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
@@ -101,23 +90,18 @@ const ChartCard: React.FC<ChartCardProps> = ({
         </ResponsiveContainer>
       );
     }
-
     return null;
   };
 
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardHeader
-        title={
-          <Typography variant="h6" component="h3" fontWeight={600}>
-            {title}
-          </Typography>
-        }
-      />
-      <CardContent>
+    <div className="h-full border rounded-2xl shadow-md bg-white p-4 flex flex-col">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-[#2563eb]">{title}</h3>
+      </div>
+      <div className="flex-1 flex items-center justify-center">
         {renderChart()}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

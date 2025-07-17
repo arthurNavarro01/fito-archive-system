@@ -7,6 +7,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -15,17 +16,36 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   login: async () => false,
   logout: () => {},
+  loading: false,
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
-    if (savedToken) setToken(savedToken);
-    if (savedUser) setUser(savedUser);
+    const checkToken = async () => {
+      const savedToken = localStorage.getItem('token');
+      const savedUser = localStorage.getItem('user');
+      if (savedToken) {
+        try {
+          // Valida o token no backend
+          await api.get('/api/users/me/', {
+            headers: { Authorization: `Bearer ${savedToken}` },
+          });
+          setToken(savedToken);
+          setUser(savedUser);
+        } catch (err) {
+          setToken(null);
+          setUser(null);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      }
+      setLoading(false);
+    };
+    checkToken();
   }, []);
 
   const login = async (username: string, password: string) => {
@@ -54,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isAuthenticated: !!token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, isAuthenticated: !!token, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

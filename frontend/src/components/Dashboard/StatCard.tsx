@@ -1,13 +1,5 @@
 
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  useTheme,
-  alpha,
-} from '@mui/material';
 
 interface StatCardProps {
   title: string;
@@ -17,6 +9,15 @@ interface StatCardProps {
   subtitle?: string;
 }
 
+const colorMap = {
+  primary: 'bg-blue-100 text-blue-700 border-blue-200',
+  secondary: 'bg-gray-100 text-gray-700 border-gray-200',
+  success: 'bg-green-100 text-green-700 border-green-200',
+  warning: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  error: 'bg-red-100 text-red-700 border-red-200',
+  info: 'bg-cyan-100 text-cyan-700 border-cyan-200',
+};
+
 const StatCard: React.FC<StatCardProps> = ({ 
   title, 
   value, 
@@ -24,52 +25,24 @@ const StatCard: React.FC<StatCardProps> = ({
   color = 'primary',
   subtitle 
 }) => {
-  const theme = useTheme();
-  
+  const colorClass = colorMap[color] || colorMap.primary;
   return (
-    <Card
-      sx={{
-        height: '100%',
-        background: `linear-gradient(135deg, ${alpha(theme.palette[color].main, 0.1)} 0%, ${alpha(theme.palette[color].main, 0.05)} 100%)`,
-        border: `1px solid ${alpha(theme.palette[color].main, 0.2)}`,
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        '&:hover': {
-          transform: 'translateY(-2px)',
-          boxShadow: theme.shadows[8],
-        },
-      }}
+    <div
+      className={`h-full border rounded-2xl p-6 shadow-md transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg bg-white flex flex-col justify-between ${colorClass}`}
     >
-      <CardContent>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Box>
-            <Typography color="textSecondary" gutterBottom variant="body2" fontWeight={500}>
-              {title}
-            </Typography>
-            <Typography variant="h4" component="h2" fontWeight="bold" color={color}>
-              {value}
-            </Typography>
-            {subtitle && (
-              <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                {subtitle}
-              </Typography>
-            )}
-          </Box>
-          <Box
-            sx={{
-              color: theme.palette[color].main,
-              backgroundColor: alpha(theme.palette[color].main, 0.1),
-              borderRadius: '50%',
-              p: 2,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {icon}
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-sm font-medium text-gray-500 mb-1">{title}</div>
+          <div className={`text-3xl font-bold mb-1 ${colorClass.split(' ')[1]}`}>{value}</div>
+          {subtitle && (
+            <div className="text-xs text-gray-400 mt-1">{subtitle}</div>
+          )}
+        </div>
+        <div className={`rounded-full p-3 flex items-center justify-center text-2xl bg-opacity-20 ${colorClass.split(' ')[0]} ${colorClass.split(' ')[1]}`}>
+          {icon}
+        </div>
+      </div>
+    </div>
   );
 };
 
