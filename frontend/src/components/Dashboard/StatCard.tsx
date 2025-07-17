@@ -27,21 +27,10 @@ const StatCard: React.FC<StatCardProps> = ({
 }) => {
   const colorClass = colorMap[color] || colorMap.primary;
   return (
-    <div
-      className={`h-full border rounded-2xl p-6 shadow-md transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg bg-white flex flex-col justify-between ${colorClass}`}
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-sm font-medium text-gray-500 mb-1">{title}</div>
-          <div className={`text-3xl font-bold mb-1 ${colorClass.split(' ')[1]}`}>{value}</div>
-          {subtitle && (
-            <div className="text-xs text-gray-400 mt-1">{subtitle}</div>
-          )}
-        </div>
-        <div className={`rounded-full p-3 flex items-center justify-center text-2xl bg-opacity-20 ${colorClass.split(' ')[0]} ${colorClass.split(' ')[1]}`}>
-          {icon}
-        </div>
-      </div>
+    <div className={`rounded-xl shadow-md p-6 flex flex-col items-center bg-white dark:bg-[#232b3a] dark:border dark:border-gray-700 dark:text-gray-100 transition-colors`}>
+      <div className="mb-2 text-3xl">{icon}</div>
+      <div className="text-lg font-semibold mb-1">{title}</div>
+      <div className="text-4xl font-bold">{value}</div>
     </div>
   );
 };

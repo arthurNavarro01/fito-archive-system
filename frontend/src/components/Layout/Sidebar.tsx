@@ -15,7 +15,7 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
 
   return (
-    <aside className="flex flex-col w-64 bg-[#1e293b] text-white py-6 px-4 shadow-lg h-screen fixed z-30">
+    <aside className="fixed top-0 left-0 h-full w-64 bg-[#1e293b] dark:bg-[#101624] text-white dark:text-gray-100 flex flex-col z-30 shadow-lg transition-colors">
       <div className="text-2xl font-bold mb-10 tracking-tight text-[#60a5fa]">FITO</div>
       <nav className="flex-1 space-y-2">
         {sidebarLinks.map(link => (

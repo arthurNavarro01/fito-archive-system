@@ -8,7 +8,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
 
   return (
-    <div className="min-h-screen bg-[#f1f5f9]">
+    <div className="min-h-screen bg-[#f1f5f9] dark:bg-[#181f2a] dark:text-gray-100 transition-colors">
       <AppBar />
       <Sidebar />
       {/* Espaço para AppBar fixo e Sidebar fixa */}

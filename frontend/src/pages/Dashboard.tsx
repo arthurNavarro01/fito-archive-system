@@ -6,6 +6,7 @@ import StatCard from '../components/Dashboard/StatCard';
 import ChartCard from '../components/Dashboard/ChartCard';
 import AlertsList from '../components/Dashboard/AlertsList';
 import Arquivo3D from './Arquivo3D';
+import { TipoAlerta, PrioridadeAlerta } from '../types';
 
 const stats = [
   { label: 'Documentos', value: 128, icon: <FaFileAlt />, color: '#2563eb' },
@@ -21,8 +22,24 @@ const pieData = [
 const pieColors = ['#2563eb', '#60a5fa', '#64748b', '#1e293b'];
 
 const alertas = [
-  { tipo: 'Descarte Próximo', mensagem: '3 documentos próximos do descarte', prioridade: 'alta' },
-  { tipo: 'Caixa Cheia', mensagem: '2 caixas atingiram a capacidade máxima', prioridade: 'media' },
+  {
+    id: '1',
+    tipo: TipoAlerta.DESCARTE_PROXIMO,
+    titulo: 'Documentos próximos do descarte',
+    mensagem: '3 documentos estão próximos do prazo de descarte',
+    data: new Date(),
+    lido: false,
+    prioridade: PrioridadeAlerta.ALTA,
+  },
+  {
+    id: '2',
+    tipo: TipoAlerta.CAIXA_CHEIA,
+    titulo: 'Caixa atingiu capacidade máxima',
+    mensagem: '2 caixas atingiram a capacidade máxima',
+    data: new Date(),
+    lido: false,
+    prioridade: PrioridadeAlerta.MEDIA,
+  },
 ];
 
 const prioridadeColor = {
@@ -33,7 +50,7 @@ const prioridadeColor = {
 
 const Dashboard: React.FC = () => {
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 bg-white dark:bg-[#181f2a] dark:text-gray-100 transition-colors min-h-screen">
       {/* Cards principais */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <StatCard title="Documentos" value={128} icon={<i className="fas fa-file-alt" />} color="primary" />

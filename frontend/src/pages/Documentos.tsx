@@ -19,7 +19,7 @@ const statusColor = {
 
 const Documentos: React.FC = () => {
   return (
-    <div className="w-full">
+    <div className="flex flex-col gap-8 bg-white dark:bg-[#181f2a] dark:text-gray-100 transition-colors min-h-screen">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
         <h2 className="text-2xl font-bold text-[#2563eb]">Documentos</h2>
         <div className="flex gap-2 items-center">

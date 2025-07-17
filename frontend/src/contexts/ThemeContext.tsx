@@ -19,6 +19,14 @@ export const ThemeContextProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (stored) setIsDarkMode(stored === 'true');
   }, []);
 
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   const toggleTheme = () => {
     setIsDarkMode((prev) => {
       localStorage.setItem('darkMode', String(!prev));

@@ -29,7 +29,7 @@ const NovaCaixa: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-[70vh]">
+    <div className="flex flex-col gap-8 bg-white dark:bg-[#181f2a] dark:text-gray-100 transition-colors min-h-screen">
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-xl flex flex-col gap-6">
         <h2 className="text-2xl font-bold text-[#2563eb] mb-2">Nova Caixa</h2>
         {success && <div className="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-center">{success}</div>}

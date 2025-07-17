@@ -1,12 +1,14 @@
 
 import React from 'react';
-import { FaBell, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import { FaBell, FaUserCircle, FaSignOutAlt, FaMoon, FaSun } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useThemeContext } from '../../contexts/ThemeContext';
 
 const AppBar: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { isDarkMode, toggleTheme } = useThemeContext();
 
   const handleLogout = () => {
     logout();
@@ -14,9 +16,18 @@ const AppBar: React.FC = () => {
   };
 
   return (
-    <header className="h-16 bg-[#2563eb] flex items-center px-4 sm:px-8 shadow text-white fixed w-full z-20">
+    <header className="h-16 bg-[#2563eb] dark:bg-[#181f2a] flex items-center px-4 sm:px-8 shadow text-white dark:text-gray-100 fixed w-full z-20 transition-colors">
       <h1 className="text-xl font-bold tracking-tight flex-1">Sistema Arquivo Morto - FITO</h1>
       <div className="flex items-center gap-2">
+        {/* Toggle dark mode */}
+        <button
+          className="p-2 rounded hover:bg-[#1e40af] transition"
+          aria-label="Alternar tema"
+          onClick={toggleTheme}
+          title={isDarkMode ? 'Modo claro' : 'Modo escuro'}
+        >
+          {isDarkMode ? <FaSun size={20} /> : <FaMoon size={20} />}
+        </button>
         {/* Notificações */}
         <div className="relative">
           <FaBell size={20} />
