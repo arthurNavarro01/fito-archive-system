@@ -43,6 +43,15 @@ class DocumentoSerializer(serializers.ModelSerializer):
         if data_arquivamento and data_prevista_descarte:
             if data_prevista_descarte <= data_arquivamento:
                 raise serializers.ValidationError('A data prevista para descarte deve ser posterior à data de arquivamento.')
+        # Validar arquivo PDF
+        arquivo_pdf = data.get('arquivo_pdf')
+        if arquivo_pdf:
+            if not arquivo_pdf.name.lower().endswith('.pdf'):
+                raise serializers.ValidationError('O arquivo deve ser um PDF.')
+            if hasattr(arquivo_pdf, 'content_type') and arquivo_pdf.content_type != 'application/pdf':
+                raise serializers.ValidationError('O arquivo deve ser um PDF.')
+            if arquivo_pdf.size > 20 * 1024 * 1024:
+                raise serializers.ValidationError('O arquivo PDF não pode exceder 20MB.')
         return data
 
     def to_representation(self, instance):

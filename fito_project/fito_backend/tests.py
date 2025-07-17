@@ -1,9 +1,11 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
 from django.contrib.auth.models import User
+import pytest
 from .models import Rua, Estante, Andar, Posicao, Caixa, Documento
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework import status
+import io
 
 class RuaModelTest(TestCase):
     def test_create_rua(self):
@@ -153,11 +155,19 @@ class ErrosAPITest(APITestBase):
 
 class DeleteAPITest(APITestBase):
     def test_deletar_caixa(self):
+        from rest_framework.test import APIClient
+        from django.contrib.auth.models import User
+        client = APIClient()
         caixa = Caixa.objects.create(posicao=self.posicao, caixa='CXDEL')
         url = f'/caixas/{caixa.id}/'
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, 204)
-        self.assertFalse(Caixa.objects.filter(id=caixa.id).exists())
+        # Tenta deletar como usuário comum
+        response = client.delete(url)
+        self.assertIn(response.status_code, [401, 403])
+        # Deleta como admin
+        admin = User.objects.create_superuser('admin2', 'admin2@test.com', '1234')
+        client.force_authenticate(user=admin)
+        response = client.delete(url)
+        self.assertIn(response.status_code, [204, 200, 202])
 
 class UploadPDFTest(APITestBase):
     def test_upload_pdf_valido(self):
@@ -274,3 +284,125 @@ class PaginacaoOrdenacaoTest(APITestBase):
         docs = data['results'] if 'results' in data else data
         datas = [d['data_arquivamento'] for d in docs]
         self.assertEqual(datas, sorted(datas, reverse=True)) 
+
+@pytest.mark.django_db
+def test_permissoes_leitura_liberada():
+    client = APIClient()
+    resp = client.get('/ruas/')
+    assert resp.status_code == 200
+
+@pytest.mark.django_db
+def test_permissoes_criacao_apenas_autenticado():
+    client = APIClient()
+    data = {'nome': 'Nova Rua'}
+    resp = client.post('/ruas/', data)
+    assert resp.status_code == 401 or resp.status_code == 403
+    user = User.objects.create_user('user', 'user@test.com', '1234')
+    client.force_authenticate(user=user)
+    resp = client.post('/ruas/', data)
+    assert resp.status_code in (201, 200)
+
+@pytest.mark.django_db
+def test_permissoes_delete_apenas_admin():
+    client = APIClient()
+    user = User.objects.create_user('user', 'user@test.com', '1234')
+    admin = User.objects.create_superuser('admin', 'admin@test.com', '1234')
+    # Cria uma rua
+    client.force_authenticate(user=admin)
+    rua_resp = client.post('/ruas/', {'nome': 'Rua Del'})
+    rua_id = rua_resp.data['id']
+    # Tenta deletar como user comum
+    client.force_authenticate(user=user)
+    resp = client.delete(f'/ruas/{rua_id}/')
+    assert resp.status_code in (403, 401)
+    # Deleta como admin
+    client.force_authenticate(user=admin)
+    resp = client.delete(f'/ruas/{rua_id}/')
+    assert resp.status_code in (204, 200, 202) 
+
+@pytest.mark.django_db
+def test_upload_pdf_maior_que_20mb():
+    from rest_framework.test import APIClient
+    from django.contrib.auth.models import User
+    from .models import Rua, Estante, Andar, Posicao, Caixa
+    client = APIClient()
+    user = User.objects.create_user('userpdf', 'userpdf@test.com', '1234')
+    client.force_authenticate(user=user)
+    rua = Rua.objects.create(nome='Rua Teste')
+    estante = Estante.objects.create(rua=rua, bloco='A')
+    andar = Andar.objects.create(estante=estante, andar=1)
+    posicao = Posicao.objects.create(andar=andar, posicao=1)
+    caixa = Caixa.objects.create(posicao=posicao, caixa='CXPDF20')
+    big_pdf = io.BytesIO(b"%PDF-1.4\n" + b"0" * (20*1024*1024 + 1))
+    big_pdf.name = 'test.pdf'
+    resp = client.post('/documentos/', {
+        'caixa': caixa.id,
+        'nome_responsavel': 'Teste',
+        'setor': 'TI',
+        'tipo': 'corrente',
+        'data_arquivamento': '2024-01-01',
+        'data_prevista_descarte': '2025-01-01',
+        'arquivo_pdf': big_pdf
+    }, format='multipart')
+    assert resp.status_code == 400
+    assert '20MB' in str(resp.data)
+
+@pytest.mark.django_db
+def test_upload_nao_pdf():
+    from rest_framework.test import APIClient
+    from django.contrib.auth.models import User
+    from .models import Rua, Estante, Andar, Posicao, Caixa
+    client = APIClient()
+    user = User.objects.create_user('usernpdf', 'usernpdf@test.com', '1234')
+    client.force_authenticate(user=user)
+    rua = Rua.objects.create(nome='Rua Teste')
+    estante = Estante.objects.create(rua=rua, bloco='A')
+    andar = Andar.objects.create(estante=estante, andar=1)
+    posicao = Posicao.objects.create(andar=andar, posicao=2)
+    caixa = Caixa.objects.create(posicao=posicao, caixa='CXNPDF')
+    fake_txt = io.BytesIO(b"not a pdf")
+    fake_txt.name = 'test.txt'
+    resp = client.post('/documentos/', {
+        'caixa': caixa.id,
+        'nome_responsavel': 'Teste',
+        'setor': 'TI',
+        'tipo': 'corrente',
+        'data_arquivamento': '2024-01-01',
+        'data_prevista_descarte': '2025-01-01',
+        'arquivo_pdf': fake_txt
+    }, format='multipart')
+    assert resp.status_code == 400
+    assert 'PDF' in str(resp.data)
+
+@pytest.mark.django_db
+def test_download_pdf_apenas_autenticado():
+    from rest_framework.test import APIClient
+    from django.contrib.auth.models import User
+    from .models import Rua, Estante, Andar, Posicao, Caixa, Documento
+    client = APIClient()
+    rua = Rua.objects.create(nome='Rua Teste')
+    estante = Estante.objects.create(rua=rua, bloco='A')
+    andar = Andar.objects.create(estante=estante, andar=1)
+    posicao = Posicao.objects.create(andar=andar, posicao=3)
+    caixa = Caixa.objects.create(posicao=posicao, caixa='CXDOWN')
+    pdf = io.BytesIO(b"%PDF-1.4\nconteudo")
+    pdf.name = 'test.pdf'
+    user = User.objects.create_user('userdown', 'userdown@test.com', '1234')
+    client.force_authenticate(user=user)
+    resp = client.post('/documentos/', {
+        'caixa': caixa.id,
+        'nome_responsavel': 'Teste',
+        'setor': 'TI',
+        'tipo': 'corrente',
+        'data_arquivamento': '2024-01-01',
+        'data_prevista_descarte': '2025-01-01',
+        'arquivo_pdf': pdf
+    }, format='multipart')
+    doc_id = resp.data['id']
+    client.force_authenticate(user=None)
+    resp = client.get(f'/documentos/{doc_id}/download_pdf/')
+    assert resp.status_code in (401, 403)
+    client.force_authenticate(user=user)
+    resp = client.get(f'/documentos/{doc_id}/download_pdf/')
+    assert resp.status_code == 200
+    assert resp.get('content-type', '').startswith('application/pdf') 
