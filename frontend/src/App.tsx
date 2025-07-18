@@ -14,6 +14,7 @@ import Caixas from './pages/Caixas';
 import NovoDocumento from './pages/NovoDocumento';
 import NovaCaixa from './pages/NovaCaixa';
 import NotFound from './pages/NotFound';
+import Arquivo3D from './pages/Arquivo3D';
 
 // Cliente React Query para futuras integrações com APIs
 const queryClient = new QueryClient({
@@ -60,6 +61,7 @@ const App: React.FC = () => {
                 <Route path="/caixas" element={<RequireAuth><Caixas /></RequireAuth>} />
                 <Route path="/novo-documento" element={<RequireAuth><NovoDocumento /></RequireAuth>} />
                 <Route path="/nova-caixa" element={<RequireAuth><NovaCaixa /></RequireAuth>} />
+                <Route path="/arquivo-3d" element={<RequireAuth><Arquivo3D /></RequireAuth>} />
               </Route>
               {/* Rota 404 */}
               <Route path="*" element={<NotFound />} />

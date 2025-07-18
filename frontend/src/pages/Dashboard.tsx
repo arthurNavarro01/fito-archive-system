@@ -57,8 +57,6 @@ const Dashboard: React.FC = () => {
         <StatCard title="Caixas" value={32} icon={<i className="fas fa-box" />} color="info" />
         <ChartCard title="Documentos por Setor" type="pie" data={pieData} dataKey="value" nameKey="name" />
       </div>
-      {/* Visualização 3D do arquivo */}
-      <Arquivo3D />
       {/* Alertas */}
       <div>
         <AlertsList alertas={alertas} />

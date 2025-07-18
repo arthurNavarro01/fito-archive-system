@@ -17,11 +17,11 @@ const AppBar: React.FC = () => {
 
   return (
     <header className="h-16 bg-[#2563eb] dark:bg-[#181f2a] flex items-center px-4 sm:px-8 shadow text-white dark:text-gray-100 fixed w-full z-20 transition-colors">
-      <h1 className="text-xl font-bold tracking-tight flex-1">Sistema Arquivo Morto - FITO</h1>
+      <div className="flex-1" />
       <div className="flex items-center gap-2">
         {/* Toggle dark mode */}
         <button
-          className="p-2 rounded hover:bg-[#1e40af] transition"
+          className="p-2 rounded hover:bg-[#1e40af] dark:hover:bg-[#232837] transition"
           aria-label="Alternar tema"
           onClick={toggleTheme}
           title={isDarkMode ? 'Modo claro' : 'Modo escuro'}
@@ -33,13 +33,13 @@ const AppBar: React.FC = () => {
           <FaBell size={20} />
         </div>
         {/* Perfil do usuário */}
-        <button className="p-2 rounded hover:bg-[#1e40af] transition" aria-label="Perfil">
+        <button className="p-2 rounded hover:bg-[#1e40af] dark:hover:bg-[#232837] transition" aria-label="Perfil">
           <FaUserCircle size={22} />
         </button>
         {/* Botão de logout */}
         {isAuthenticated && (
           <button
-            className="flex items-center gap-1 bg-[#1e293b] hover:bg-[#334155] text-white px-3 py-2 rounded-lg transition text-sm font-semibold"
+            className="flex items-center gap-1 bg-[#1e293b] dark:bg-[#232837] hover:bg-[#334155] dark:hover:bg-[#232837] text-white px-3 py-2 rounded-lg transition text-sm font-semibold"
             onClick={handleLogout}
             title="Sair"
           >

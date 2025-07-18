@@ -40,7 +40,7 @@ const AlertsList: React.FC<AlertsListProps> = ({ alertas, maxItems = 5 }) => {
   const alertasExibir = alertas.slice(0, maxItems);
 
   return (
-    <div className="h-full border rounded-2xl shadow-md bg-white dark:bg-[#232b3a] dark:border-gray-700 dark:text-gray-100 transition-colors p-4 flex flex-col">
+    <div className="h-full border rounded-2xl shadow-md bg-white dark:bg-[#232b3a] dark:text-gray-100 transition-colors p-4 flex flex-col">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-[#2563eb]">Alertas Recentes</h3>
         <span className="bg-[#2563eb] text-white text-xs font-bold rounded-full px-3 py-1">{alertas.length} total</span>
@@ -52,11 +52,11 @@ const AlertsList: React.FC<AlertsListProps> = ({ alertas, maxItems = 5 }) => {
             <span className="text-gray-400">Nenhum alerta no momento</span>
           </div>
         ) : (
-          <ul className="divide-y divide-gray-200">
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {alertasExibir.map((alerta, index) => (
               <li
                 key={alerta.id}
-                className={`flex items-start gap-3 py-3 px-1 rounded-lg ${!alerta.lido ? 'bg-blue-50' : ''}`}
+                className={`flex items-start gap-3 py-3 px-1 rounded-lg ${!alerta.lido ? 'bg-blue-50 dark:bg-[#232b3a]' : ''}`}
               >
                 <div className="mt-1">{getAlertIcon(alerta.tipo)}</div>
                 <div className="flex-1">

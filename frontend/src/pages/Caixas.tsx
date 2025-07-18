@@ -53,7 +53,11 @@ const Caixas: React.FC = () => {
           </thead>
           <tbody>
             {caixas.map((caixa, idx) => (
-              <tr key={caixa.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-[#f1f5f9] hover:bg-[#e0e7ef]'}>
+              <tr key={caixa.id} className={
+                idx % 2 === 0
+                  ? 'bg-white dark:bg-[#232837]'
+                  : 'bg-[#f1f5f9] dark:bg-[#181c24] hover:bg-[#e0e7ef] dark:hover:bg-[#232837]'
+              }>
                 <td className="py-3 px-4 font-medium flex items-center gap-2"><FaBox className="text-[#2563eb]" /> {caixa.numero}</td>
                 <td className="py-3 px-4">{caixa.setor}</td>
                 <td className="py-3 px-4 flex items-center gap-2">
@@ -73,7 +77,7 @@ const Caixas: React.FC = () => {
       {/* Cards para mobile */}
       <div className="md:hidden flex flex-col gap-4">
         {caixas.map(caixa => (
-          <div key={caixa.id} className="bg-white rounded-2xl shadow p-4 flex flex-col gap-2">
+          <div key={caixa.id} className="bg-white dark:bg-[#181c24] rounded-2xl shadow p-4 flex flex-col gap-2">
             <div className="flex items-center gap-2 text-[#2563eb] font-bold"><FaBox /> {caixa.numero}</div>
             <div className="flex gap-2 text-sm text-[#64748b]">
               <span>{caixa.setor}</span> | <span>{caixa.ocupada} / {caixa.capacidade}</span>

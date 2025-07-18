@@ -94,7 +94,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
   };
 
   return (
-    <div className="h-full border rounded-2xl shadow-md bg-white p-4 flex flex-col">
+    <div className="h-full border rounded-2xl shadow-md bg-white dark:bg-[#232b3a] dark:text-gray-100 p-4 flex flex-col">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-[#2563eb]">{title}</h3>
       </div>
