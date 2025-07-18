@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { FaEnvelope, FaLock } from 'react-icons/fa';
+import { FaEnvelope, FaLock, FaMoon, FaSun } from 'react-icons/fa';
+import { useThemeContext } from '../contexts/ThemeContext';
 
 const Login: React.FC = () => {
   const { login } = useAuth();
@@ -10,6 +11,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { isDarkMode, toggleTheme } = useThemeContext();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,8 +27,18 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[url('data:image/svg+xml;utf8,<svg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'><rect width=\'40\' height=\'40\' fill=\'%23f1f5f9\'/><path d=\'M0 0H40V40H0V0Z\' fill=\'none\'/><path d=\'M0 40L40 0M0 0L40 40\' stroke=\'%23e2e8f0\' stroke-width=\'1\'/></svg>')] bg-repeat">
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl w-full max-w-md p-10 flex flex-col gap-6">
+    <div className="min-h-screen flex items-center justify-center bg-[#f1f5f9] dark:bg-[#181f2a] transition-colors">
+      <form onSubmit={handleSubmit} className="bg-white dark:bg-[#23272f] rounded-2xl shadow-xl w-full max-w-md p-10 flex flex-col gap-6 relative">
+        {/* Botão de dark mode dentro do card, topo direito */}
+        <button
+          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-[#232837] transition"
+          aria-label="Alternar tema"
+          onClick={toggleTheme}
+          title={isDarkMode ? 'Modo claro' : 'Modo escuro'}
+          type="button"
+        >
+          {isDarkMode ? <FaSun size={18} className="text-yellow-400" /> : <FaMoon size={18} className="text-gray-700" />}
+        </button>
         <div className="flex flex-col items-center mb-2">
           <div className="bg-[#2563eb] rounded-lg p-2 mb-2">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
