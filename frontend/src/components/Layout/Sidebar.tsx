@@ -2,6 +2,7 @@
 import React, { useState } from "react"
 import { Link, useLocation } from 'react-router-dom';
 import { FaHome, FaFileAlt, FaBox, FaPlus, FaArchive, FaBars } from 'react-icons/fa';
+import { FaCog } from 'react-icons/fa';
 
 const sidebarLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: <FaHome /> },
@@ -10,6 +11,7 @@ const sidebarLinks = [
   { to: '/novo-documento', label: 'Novo Documento', icon: <FaPlus /> },
   { to: '/nova-caixa', label: 'Nova Caixa', icon: <FaArchive /> },
   { to: '/arquivo-3d', label: 'Arquivo 3D', icon: <FaBox /> },
+  { to: '/configuracoes', label: 'Configurações', icon: <FaCog /> },
 ];
 
 const Sidebar: React.FC = () => {
